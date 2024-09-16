@@ -14,39 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Determine environment
-        id: determine_env
-        run: |
-          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
-            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
-          elif [[ ${{ github.ref }} == 'refs/heads/staging' ]]; then
-            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
-          else
-            echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
-          fi
-          echo "Determined environment: ${{ steps.determine_env.outputs.ENVIRONMENT }}"
-
-      - name: Set environment variables
-        run: |
-          if [[ ${{ steps.determine_env.outputs.ENVIRONMENT }} == 'production' ]]; then
-            echo "SERVER_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.PROD_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
-            echo "Using production environment"
-          elif [[ ${{ steps.determine_env.outputs.ENVIRONMENT }} == 'staging' ]]; then
-            echo "SERVER_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.STAGING_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
-            echo "Using staging environment"
-          else
-            echo "Unsupported environment"
-            exit 1
-          fi
-
       - name: Debug environment variables
         run: |
           echo "GITHUB_REF: ${{ github.ref }}"
-          echo "Environment: ${{ steps.determine_env.outputs.ENVIRONMENT }}"
-          echo "Server IP: ${{ env.SERVER_IP }}"
-          if [ -n "${{ env.SSH_KEY }}" ]; then
+          echo "Server IP: ${{ secrets.SERVER_IP }}"
+          if [ -n "${{ secrets.SSH_KEY }}" ]; then
             echo "SSH_KEY is set"
           else
             echo "Error: SSH_KEY is empty"
@@ -55,7 +27,7 @@ jobs:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.0
         with:
-          ssh-private-key: ${{ env.SSH_KEY }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Add VPS to known hosts
         run: ssh-keyscan -H ${{ env.SERVER_IP }} >> ~/.ssh/known_hosts
