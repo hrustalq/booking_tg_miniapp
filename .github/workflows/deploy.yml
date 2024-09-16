@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging
 
 jobs:
   deploy:
@@ -12,22 +13,39 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Debug SSH_PRIVATE_KEY
+      - name: Determine environment
+        id: determine_env
         run: |
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
-            echo "Error: SSH_PRIVATE_KEY is empty"
+          if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
+            echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
+            echo "SERVER_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
+            echo "SSH_KEY=${{ secrets.PROD_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
+          elif [[ ${{ github.ref }} == 'refs/heads/staging' ]]; then
+            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
+            echo "SERVER_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
+            echo "SSH_KEY=${{ secrets.STAGING_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
+          else
+            echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Debug environment
+        run: |
+          echo "Deploying to ${{ steps.determine_env.outputs.ENVIRONMENT }} environment"
+          echo "Server IP: ${{ env.SERVER_IP }}"
+          if [ -z "${{ env.SSH_KEY }}" ]; then
+            echo "Error: SSH_KEY is empty"
             exit 1
           else
-            echo "SSH_PRIVATE_KEY is not empty"
+            echo "SSH_KEY is set"
           fi
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ env.SSH_KEY }}
 
       - name: Add VPS to known hosts
-        run: ssh-keyscan -H 147.45.106.76 >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H ${{ env.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: Deploy to VPS
-        run: ssh root@147.45.106.76 'bash /usr/apps/booking_tg_miniapp/deploy.sh'
+        run: ssh root@${{ env.SERVER_IP }} 'bash /usr/apps/booking_tg_miniapp/deploy.sh'
