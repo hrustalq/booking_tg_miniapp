@@ -21,6 +21,9 @@ jobs:
       - name: Add VPS to known hosts
         run: ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
+      - name: Pull latest code
+        run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && git pull origin main'
+
       - name: Create SSL certificate files
         run: |
           ssh root@${{ secrets.SERVER_IP }} '
@@ -28,9 +31,6 @@ jobs:
           echo "${{ secrets.SSL_PRIVATE_KEY }}" > /usr/apps/booking_tg_miniapp/nginx/key.pem &&
           chmod 600 /usr/apps/booking_tg_miniapp/nginx/cert.pem /usr/apps/booking_tg_miniapp/nginx/key.pem
           '
-
-      - name: Pull latest code
-        run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && git pull origin main'
 
       - name: Build app
         run: ssh root@${{ secrets.SERVER_IP }} 'bash /usr/apps/booking_tg_miniapp/deploy.sh'
