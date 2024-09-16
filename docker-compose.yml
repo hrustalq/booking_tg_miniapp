@@ -1,0 +1,42 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./apps/web:/app/apps/web
+    environment:
+      - NODE_ENV=development
+    command: sh -c "cd apps/web && npm run dev"
+    networks:
+      - app_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./apps/api:/app/apps/api
+    environment:
+      - NODE_ENV=development
+    command: sh -c "cd apps/api && npm run start:dev"
+    networks:
+      - app_network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/ssl:/etc/ssl:ro
+    depends_on:
+      - web
+      - api
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
