@@ -7,7 +7,6 @@ services:
       - ./apps/web:/app/apps/web
     environment:
       - NODE_ENV=development
-    command: sh -c "cd apps/web && npm run dev"
     networks:
       - app_network
 
@@ -19,7 +18,6 @@ services:
       - ./apps/api:/app/apps/api
     environment:
       - NODE_ENV=development
-    command: sh -c "cd apps/api && npm run start:dev"
     networks:
       - app_network
 

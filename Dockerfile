@@ -20,4 +20,4 @@ EXPOSE 5173 3000
 ENV NODE_ENV=development
 
 # Start both applications in development mode
-CMD ["sh", "-c", "cd apps/web && npm run dev & cd apps/api && npm run start:dev"]
+CMD ["sh", "-c", "npm run dev"]
