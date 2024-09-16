@@ -18,16 +18,16 @@ jobs:
         run: |
           echo "GITHUB_REF: ${{ github.ref }}"
           echo "Server IP: ${{ secrets.SERVER_IP }}"
-          if [ -n "${{ secrets.SSH_KEY }}" ]; then
+          if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
             echo "SSH_KEY is set"
           else
-            echo "Error: SSH_KEY is empty"
+            echo "Error: SSH_PRIVATE_KEY is empty"
           fi
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.0
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add VPS to known hosts
         run: ssh-keyscan -H ${{ env.SERVER_IP }} >> ~/.ssh/known_hosts
