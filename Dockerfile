@@ -16,9 +16,6 @@ COPY . .
 # Expose ports for both applications
 EXPOSE 5173 3000
 
-# Install global dependencies
-RUN npm install -g @nestjs/cli vite
-
 # Set up environment for development
 ENV NODE_ENV=development
 
