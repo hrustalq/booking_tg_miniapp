@@ -35,6 +35,27 @@ jobs:
       - name: Pull latest code
         run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && git pull origin main'
 
+      - name: Check node availability and install if necessary
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} '
+            if command -v node &> /dev/null; then
+              echo "Node.js is available"
+            else
+              echo "Node.js not found. Installing NVM and Node.js..."
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+              [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+              bash -c "nvm install 20"
+              if command -v node &> /dev/null; then
+                echo "Node.js has been successfully installed"
+              else
+                echo "Failed to install Node.js"
+                exit 1
+              fi
+            fi
+          '
+
       - name: Install dependencies
         run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && npm install'
 
