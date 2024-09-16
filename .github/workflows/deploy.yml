@@ -14,10 +14,8 @@ jobs:
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.0
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         with:
-          ssh-private-key: "$SSH_PRIVATE_KEY"
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Add VPS to known hosts
         run: ssh-keyscan -H 147.45.106.76 >> ~/.ssh/known_hosts
