@@ -24,9 +24,9 @@ jobs:
       - name: Create SSL certificate files
         run: |
           ssh root@${{ secrets.SERVER_IP }} '
-          echo "${{ secrets.SSL_CERT }}" > /etc/nginx/ssl/cert.pem &&
-          echo "${{ secrets.SSL_PRIVATE_KEY }}" > /etc/nginx/ssl/key.pem &&
-          chmod 600 /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem
+          echo "${{ secrets.SSL_CERT }}" > /usr/apps/booking_tg_miniapp/nginx/cert.pem &&
+          echo "${{ secrets.SSL_PRIVATE_KEY }}" > /usr/apps/booking_tg_miniapp/nginx/key.pem &&
+          chmod 600 /usr/apps/booking_tg_miniapp/nginx/cert.pem /usr/apps/booking_tg_miniapp/nginx/key.pem
           '
 
       - name: Pull latest code
