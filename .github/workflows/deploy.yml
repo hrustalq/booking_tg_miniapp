@@ -18,25 +18,37 @@ jobs:
         run: |
           if [[ ${{ github.ref }} == 'refs/heads/main' ]]; then
             echo "ENVIRONMENT=production" >> $GITHUB_OUTPUT
-            echo "SERVER_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.PROD_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
           elif [[ ${{ github.ref }} == 'refs/heads/staging' ]]; then
             echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
-            echo "SERVER_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
-            echo "SSH_KEY=${{ secrets.STAGING_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
           else
             echo "ENVIRONMENT=development" >> $GITHUB_OUTPUT
           fi
+          echo "Determined environment: ${{ steps.determine_env.outputs.ENVIRONMENT }}"
 
-      - name: Debug environment
+      - name: Set environment variables
         run: |
-          echo "Deploying to ${{ steps.determine_env.outputs.ENVIRONMENT }} environment"
-          echo "Server IP: ${{ env.SERVER_IP }}"
-          if [ -z "${{ env.SSH_KEY }}" ]; then
-            echo "Error: SSH_KEY is empty"
-            exit 1
+          if [[ ${{ steps.determine_env.outputs.ENVIRONMENT }} == 'production' ]]; then
+            echo "SERVER_IP=${{ secrets.PROD_SERVER_IP }}" >> $GITHUB_ENV
+            echo "SSH_KEY=${{ secrets.PROD_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
+            echo "Using production environment"
+          elif [[ ${{ steps.determine_env.outputs.ENVIRONMENT }} == 'staging' ]]; then
+            echo "SERVER_IP=${{ secrets.STAGING_SERVER_IP }}" >> $GITHUB_ENV
+            echo "SSH_KEY=${{ secrets.STAGING_SSH_PRIVATE_KEY }}" >> $GITHUB_ENV
+            echo "Using staging environment"
           else
+            echo "Unsupported environment"
+            exit 1
+          fi
+
+      - name: Debug environment variables
+        run: |
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "Environment: ${{ steps.determine_env.outputs.ENVIRONMENT }}"
+          echo "Server IP: ${{ env.SERVER_IP }}"
+          if [ -n "${{ env.SSH_KEY }}" ]; then
             echo "SSH_KEY is set"
+          else
+            echo "Error: SSH_KEY is empty"
           fi
 
       - name: Setup SSH
