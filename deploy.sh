@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the project directory
-PROJECT_DIR="/usr/apps/tg-bot"
+PROJECT_DIR="/usr/apps/booking_tg_miniapp"
 SITE_NAME="tg-bot"
 
 # Navigate to the project directory
