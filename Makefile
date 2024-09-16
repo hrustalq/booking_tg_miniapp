@@ -5,27 +5,27 @@ all: up
 
 # Start containers in detached mode
 up:
-	docker-compose up -d
+	docker-compose -f docker-compose.yml up -d
 
 # Stop and remove containers
 down:
-	docker-compose down
+	docker-compose -f docker-compose.yml down
 
 # Build or rebuild services
 build:
-	docker-compose build
+	docker-compose -f docker-compose.yml build
 
 # View output from containers
 logs:
-	docker-compose logs -f
+	docker-compose -f docker-compose.yml logs -f
 
 # List containers
 ps:
-	docker-compose ps
+	docker-compose -f docker-compose.yml ps
 
 # Remove all containers, networks, and volumes
 clean:
-	docker-compose down -v --remove-orphans
+	docker-compose -f docker-compose.yml down -v --remove-orphans
 
 # Help target
 help:
