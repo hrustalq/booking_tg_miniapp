@@ -31,4 +31,13 @@ ps:
 clean:
 	cd $(ROOT_DIR) && docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
 
-# ... existing help target ...
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  up     - Start containers in detached mode"
+	@echo "  down   - Stop and remove containers"
+	@echo "  build  - Build or rebuild services"
+	@echo "  logs   - View output from containers"
+	@echo "  ps     - List containers"
+	@echo "  clean  - Remove all containers, networks, and volumes"
+	@echo "  help   - Show this help message"
