@@ -21,4 +21,4 @@ jobs:
         run: ssh-keyscan -H 147.45.106.76 >> ~/.ssh/known_hosts
 
       - name: Deploy to VPS
-        run: ssh root@147.45.106.76 'bash /usr/scripts/deploy.sh'
+        run: ssh root@147.45.106.76 'bash /usr/apps/booking_tg_miniapp/deploy.sh'
