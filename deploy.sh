@@ -10,7 +10,8 @@ cd $PROJECT_DIR || exit
 git pull origin main
 
 # Build and start the Docker containers
-docker-compose up -d --build
+make build
+make up
 
 # Check if the containers are running
 if [ $? -eq 0 ]; then
