@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - staging
 
 jobs:
   deploy:
@@ -21,6 +20,14 @@ jobs:
 
       - name: Add VPS to known hosts
         run: ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Create SSL certificate files
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} '
+          echo "${{ secrets.SSL_CERT }}" > /etc/nginx/ssl/cert.pem &&
+          echo "${{ secrets.SSL_PRIVATE_KEY }}" > /etc/nginx/ssl/key.pem &&
+          chmod 600 /etc/nginx/ssl/cert.pem /etc/nginx/ssl/key.pem
+          '
 
       - name: Pull latest code
         run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && git pull origin main'
