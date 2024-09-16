@@ -17,7 +17,7 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         with:
-          ssh-private-key: "$SUPER_SECRET"
+          ssh-private-key: "$SSH_PRIVATE_KEY"
 
       - name: Add VPS to known hosts
         run: ssh-keyscan -H 147.45.106.76 >> ~/.ssh/known_hosts
