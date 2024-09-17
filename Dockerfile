@@ -10,6 +10,10 @@ RUN npm install -g @nestjs/cli
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
+COPY turbo.json ./
+
+COPY /apps/api/package*.json ./apps/api/
+COPY /apps/web/package*.json ./apps/web/
 
 # Install dependencies
 RUN npm install
