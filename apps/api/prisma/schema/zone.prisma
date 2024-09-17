@@ -1,0 +1,18 @@
+model Zone {
+  id          String   @id @default(cuid())
+
+  name        String
+  description String?
+
+  hourlyRate  Float
+
+  branchId   String
+  branch     Branch    @relation(fields: [branchId], references: [id])
+
+  pcs        PC[]
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([name, branchId])
+}

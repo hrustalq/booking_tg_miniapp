@@ -1,0 +1,28 @@
+model PC {
+  id         String    @id @default(cuid())
+  name       String
+
+  status     PCStatus  @default(AVAILABLE)
+
+  location   String? // e.g., "Room 1", "Desk 5"
+
+  branchId   String
+  branch     Branch    @relation(fields: [branchId], references: [id])
+
+  zoneId     String
+  zone       Zone      @relation(fields: [zoneId], references: [id])
+
+  bookings   Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+enum PCStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+  OUT_OF_ORDER
+}
