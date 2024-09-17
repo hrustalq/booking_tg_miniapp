@@ -1,0 +1,19 @@
+model GizmoUser {
+  id String @id @default(uuid())
+  username String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TelegramUser {
+  id Int @id
+  is_bot Boolean?
+  first_name String
+  last_name String?
+  username String?
+  language_code String?
+  is_premium Boolean?
+  photo_url String?
+  added_to_attachment_menu Boolean?
+  allows_write_to_pm Boolean?
+}

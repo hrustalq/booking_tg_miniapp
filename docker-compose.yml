@@ -1,9 +1,25 @@
 services:
-  app:
-    build: .
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        - TURBO_TOKEN=${TURBO_TOKEN}
+        - TURBO_TEAM=${TURBO_TEAM}
+    environment:
+      - NODE_ENV=development
+    networks:
+      - app_network
+
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+      args:
+        - TURBO_TOKEN=${TURBO_TOKEN}
+        - TURBO_TEAM=${TURBO_TEAM}
+    environment:
+      - NODE_ENV=development
     networks:
       - app_network
 
@@ -17,13 +33,11 @@ services:
       - ./nginx/cert.pem:/etc/nginx/ssl/cert.pem:ro
       - ./nginx/key.pem:/etc/nginx/ssl/key.pem:ro
     depends_on:
-      - app
+      - web
+      - api
     networks:
       - app_network
 
 networks:
   app_network:
     driver: bridge
-
-volumes:
-  node_modules: {}
