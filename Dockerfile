@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Install Turbo globally
 RUN npm install -g turbo
+RUN npm install -g @nestjs/cli
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
