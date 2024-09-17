@@ -31,5 +31,5 @@ RUN npx turbo run build --filter web
 FROM node:18-alpine AS runner
 WORKDIR /app
 COPY --from=sourcer /app/ .
-WORKDIR /app/apps/web/
+
 CMD ["npx", "serve", "-s", "apps/web/dist", "-l", "80"]
