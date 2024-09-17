@@ -2,9 +2,10 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./apps/web:/app/apps/web
+      dockerfile: ./apps/web/Dockerfile
+      args:
+        - TURBO_TOKEN=${TURBO_TOKEN}
+        - TURBO_TEAM=${TURBO_TEAM}
     environment:
       - NODE_ENV=development
     networks:
@@ -13,9 +14,10 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./apps/api:/app/apps/api
+      dockerfile: ./apps/api/Dockerfile
+      args:
+        - TURBO_TOKEN=${TURBO_TOKEN}
+        - TURBO_TEAM=${TURBO_TEAM}
     environment:
       - NODE_ENV=development
     networks:
@@ -35,12 +37,10 @@ services:
       - api
     networks:
       - app_network
-    command: >
-      sh -c "apk add --no-cache ufw sudo &&
-             sudo ufw allow 'Nginx Full' &&
-             sudo ufw --force enable &&
-             nginx -g 'daemon off;'"
 
 networks:
   app_network:
     driver: bridge
+
+volumes:
+  node_modules: {}

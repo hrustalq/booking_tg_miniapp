@@ -9,27 +9,27 @@ all: up
 
 # Start containers in detached mode
 up:
-	cd $(ROOT_DIR) && docker compose -f $(COMPOSE_FILE) up -d
+	docker compose -f $(COMPOSE_FILE) up -d
 
 # Stop and remove containers
 down:
-	cd $(ROOT_DIR) && dockercompose -f $(COMPOSE_FILE) down
+	docker compose -f $(COMPOSE_FILE) down
 
 # Build or rebuild services
 build:
-	cd $(ROOT_DIR) && docker compose -f $(COMPOSE_FILE) build
+	docker compose -f $(COMPOSE_FILE) build
 
 # View output from containers
 logs:
-	cd $(ROOT_DIR) && docker compose -f $(COMPOSE_FILE) logs -f
+	docker compose -f $(COMPOSE_FILE) logs -f
 
 # List containers
 ps:
-	cd $(ROOT_DIR) && docker compose -f $(COMPOSE_FILE) ps
+	docker compose -f $(COMPOSE_FILE) ps
 
 # Remove all containers, networks, and volumes
 clean:
-	cd $(ROOT_DIR) && docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
+	docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
 
 # Help target
 help:

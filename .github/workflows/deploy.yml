@@ -9,6 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: 'production' 
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,6 +27,26 @@ jobs:
       - name: Pull latest code
         run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && git pull origin main'
 
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with: 
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
       - name: Create SSL certificate files
         run: |
           ssh root@${{ secrets.SERVER_IP }} '
@@ -32,5 +55,5 @@ jobs:
           chmod 600 /usr/apps/booking_tg_miniapp/nginx/cert.pem /usr/apps/booking_tg_miniapp/nginx/key.pem
           '
 
-      - name: Build app
-        run: ssh root@${{ secrets.SERVER_IP }} 'bash /usr/apps/booking_tg_miniapp/deploy.sh'
+      - name: Deploy
+        run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && make build && make up'
