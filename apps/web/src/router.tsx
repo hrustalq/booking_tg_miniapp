@@ -1,8 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "./layout";
 import RootPage from "./routes/root";
+import UnauthorizedPage from "./routes/unauthorized";
+import NotificationsPage from "./routes/notifications";
+import NotFoundPage from "./not-found";
+import { AuthWrapper } from "./components/auth-wrapper";
+import NewsPage from "./routes/news";
 
-export default createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
@@ -11,6 +16,24 @@ export default createBrowserRouter([
         index: true,
         element: <RootPage />,
       },
+      {
+        path: "unauthorized",
+        element: <UnauthorizedPage />,
+      },
+      {
+        path: "notifications",
+        element: <AuthWrapper><NotificationsPage /></AuthWrapper>
+      },
+      {
+        path: "news",
+        element: <NewsPage />,
+      },
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      }
     ],
   },
 ]);
+
+export default router;

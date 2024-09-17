@@ -1,9 +1,10 @@
-import { ThemeProvider } from '@/context/theme-context'
-import { AuthProvider } from '@/context/auth-context'
+import ThemeProvider from '@/providers/theme-prodiver'
+import { AuthProvider } from '@/providers/auth-provider'
 import { RouterProvider } from 'react-router-dom'
 import router from '@/router'
 import LoadingFallback from '@/components/loading-fallback'
 import eruda from 'eruda'
+import '@/assets/globals.css'
 
 function App() {
   if (process.env.NODE_ENV === 'development') {

@@ -34,6 +34,9 @@
     --ring: 215 20.2% 65.1%;
 
     --radius: 0.5rem;
+
+    --font-primary: 'Roboto', sans-serif;
+    --font-secondary: 'Poppins', sans-serif;
   }
 
   .dark {
@@ -77,6 +80,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: var(--font-primary);
   }
   html,
   body,
@@ -85,5 +89,8 @@
   }
   #root {
     @apply flex flex-col;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-accent);
   }
 }

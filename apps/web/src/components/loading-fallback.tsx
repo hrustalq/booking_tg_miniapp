@@ -1,6 +1,6 @@
 import React from 'react';
 import { TypographyH3 } from './typography';
-import { useTheme } from '../context/theme-context';
+import { useTheme } from '@/hooks/use-theme';
 import { LuLoader } from 'react-icons/lu';
 
 const LoadingFallback: React.FC = () => {

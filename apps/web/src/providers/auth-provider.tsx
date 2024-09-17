@@ -1,32 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import WebApp from '@twa-dev/sdk';
+import AuthContext from '../context/auth-context';
 
-type TelegramUser = typeof WebApp.initDataUnsafe.user;
+export type TelegramUser = typeof WebApp.initDataUnsafe.user;
 
-type GizmoUser = {
+export type GizmoUser = {
   username: string;
   id: number;
 };
 
-type User = {
+export type User = {
   telegramData: TelegramUser;
   gizmoData: GizmoUser | null;
 }
-
-interface AuthContextType {
-  user: User | null;
-  authenticate: (user: TelegramUser) => void;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
 interface AuthProviderProps {
   children: React.ReactNode;
