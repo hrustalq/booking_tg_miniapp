@@ -88,140 +88,138 @@ const RootPage: React.FC = () => {
 
   return (
     <div className={`mobile-layout ${getThemeClasses()}`}>
-      <main className="">
-        <h1 className="text-3xl font-bold mb-4 text-center">Сеть компьютерных клубов Bananagun</h1>
-        <p className="text-center mb-4 text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
-          Современное оборудование • Комфортная атмосфера • Гибкие тарифы
-        </p>
-        
-        <div className="text-center mb-8">
-          <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
-            <FaCalendarAlt className="mr-2" />
-            Забронировать
-          </Link>
-        </div>
-        
-        <Tabs defaultValue="club1">
-          <TabsList className="mb-8 flex justify-center">
-            <TabsTrigger value="club1" className="px-6 py-3 text-lg">Кибер Арена</TabsTrigger>
-            <TabsTrigger value="club2" className="px-6 py-3 text-lg">Геймер</TabsTrigger>
-          </TabsList>
-          <TabsContent value="club1">
-            <section className="mb-6">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Компьютерный клуб "Кибер Арена"</h2>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-[auto,1fr] gap-4 mb-6">
-                    <FaMapMarkerAlt className="text-2xl text-blue-500" />
-                    <a href="https://2gis.ru/search/ул.%20Пушкина%2C%20д.%2010" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                      ул. Пушкина, д. 10
-                    </a>
-                    <FaPhone className="text-2xl text-blue-500" />
-                    <a href="tel:+71234567890" className="text-blue-500 hover:underline">
-                      +7 (123) 456-78-90
-                    </a>
-                    <FaUsers className="text-2xl text-blue-500" />
-                    <span>50 мест</span>
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">Зоны:</h4>
-                    <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      <li className="text-sm">Стандарт (30 мест)</li>
-                      <li className="text-sm">VIP (15 мест)</li>
-                      <li className="text-sm">Турнирная (5 мест)</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-            
-            <section className="mb-6">
-              <h3 className="text-xl font-semibold mb-6 text-center">Цены и акции</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {club1Prices.map((price, index) => (
-                  <PriceCard key={index} {...price} />
-                ))}
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
-              <Tabs defaultValue="standard">
-                <TabsList className="mb-6 flex justify-center">
-                  <TabsTrigger value="standard" className="px-6 py-3 text-lg">Стандарт</TabsTrigger>
-                  <TabsTrigger value="vip" className="px-6 py-3 text-lg">VIP</TabsTrigger>
-                </TabsList>
-                <TabsContent value="standard">
-                  <HardwareInfo specs={club1Specs} />
-                </TabsContent>
-                <TabsContent value="vip">
-                  <HardwareInfo specs={club1Specs.map(spec => ({ ...spec, description: `VIP ${spec.description}` }))} />
-                </TabsContent>
-              </Tabs>
-            </section>
-          </TabsContent>
-          <TabsContent value="club2">
-            <section className="mb-6">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Компьютерный клуб "Геймер"</h2>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-[auto,1fr] gap-4 mb-6">
-                    <FaMapMarkerAlt className="text-2xl text-blue-500" />
-                    <a href="https://2gis.ru/search/пр.%20Ленина%2C%20д.%2015" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                      пр. Ленина, д. 15
-                    </a>
-                    <FaPhone className="text-2xl text-blue-500" />
-                    <a href="tel:+79876543210" className="text-blue-500 hover:underline">
-                      +7 (987) 654-32-10
-                    </a>
-                    <FaUsers className="text-2xl text-blue-500" />
-                    <span>30 мест</span>
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">Зоны:</h4>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <li className="text-sm">Стандарт (20 мест)</li>
-                      <li className="text-sm">Премиум (10 мест)</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-            
-            <section className="mb-6">
-              <h3 className="text-xl font-semibold mb-6 text-center">Цены и акции</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {club2Prices.map((price, index) => (
-                  <PriceCard key={index} {...price} />
-                ))}
-              </div>
-            </section>
-            
-            <section>
-              <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
-              <Tabs defaultValue="standard">
-                <TabsList className="mb-6 flex justify-center">
-                  <TabsTrigger value="standard" className="px-6 py-3 text-lg">Стандарт</TabsTrigger>
-                  <TabsTrigger value="premium" className="px-6 py-3 text-lg">Премиум</TabsTrigger>
-                </TabsList>
-                <TabsContent value="standard">
-                  <HardwareInfo specs={club2Specs} />
-                </TabsContent>
-                <TabsContent value="premium">
-                  <HardwareInfo specs={club2Specs.map(spec => ({ ...spec, description: `Премиум ${spec.description}` }))} />
-                </TabsContent>
-              </Tabs>
-            </section>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="text-center my-6">
-          <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
-            <FaCalendarAlt className="mr-2" />
-            Забронировать
-          </Link>
-        </div>
-      </main>
+      <h1 className="text-3xl font-bold mb-4 text-center">Сеть компьютерных клубов Bananagun</h1>
+      <p className="text-center mb-4 text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+        Современное оборудование • Комфортная атмосфера • Гибкие тарифы
+      </p>
+      
+      <div className="text-center mb-8">
+        <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
+          <FaCalendarAlt className="mr-2" />
+          Забронировать
+        </Link>
+      </div>
+      
+      <Tabs defaultValue="club1">
+        <TabsList className="mb-8 flex justify-center">
+          <TabsTrigger value="club1" className="px-6 py-3 text-lg">Кибер Арена</TabsTrigger>
+          <TabsTrigger value="club2" className="px-6 py-3 text-lg">Геймер</TabsTrigger>
+        </TabsList>
+        <TabsContent value="club1">
+          <section className="mb-6">
+            <h2 className="text-2xl font-semibold mb-6 text-center">Компьютерный клуб "Кибер Арена"</h2>
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-[auto,1fr] gap-4 mb-6">
+                  <FaMapMarkerAlt className="text-2xl text-blue-500" />
+                  <a href="https://2gis.ru/search/ул.%20Пушкина%2C%20д.%2010" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                    ул. Пушкина, д. 10
+                  </a>
+                  <FaPhone className="text-2xl text-blue-500" />
+                  <a href="tel:+71234567890" className="text-blue-500 hover:underline">
+                    +7 (123) 456-78-90
+                  </a>
+                  <FaUsers className="text-2xl text-blue-500" />
+                  <span>50 мест</span>
+                </div>
+                <div className="mt-4">
+                  <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">Зоны:</h4>
+                  <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <li className="text-sm">Стандарт (30 мест)</li>
+                    <li className="text-sm">VIP (15 мест)</li>
+                    <li className="text-sm">Турнирная (5 мест)</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+          
+          <section className="mb-6">
+            <h3 className="text-xl font-semibold mb-6 text-center">Цены и акции</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {club1Prices.map((price, index) => (
+                <PriceCard key={index} {...price} />
+              ))}
+            </div>
+          </section>
+          
+          <section>
+            <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
+            <Tabs defaultValue="standard">
+              <TabsList className="mb-6 flex justify-center">
+                <TabsTrigger value="standard" className="px-6 py-3 text-lg">Стандарт</TabsTrigger>
+                <TabsTrigger value="vip" className="px-6 py-3 text-lg">VIP</TabsTrigger>
+              </TabsList>
+              <TabsContent value="standard">
+                <HardwareInfo specs={club1Specs} />
+              </TabsContent>
+              <TabsContent value="vip">
+                <HardwareInfo specs={club1Specs.map(spec => ({ ...spec, description: `VIP ${spec.description}` }))} />
+              </TabsContent>
+            </Tabs>
+          </section>
+        </TabsContent>
+        <TabsContent value="club2">
+          <section className="mb-6">
+            <h2 className="text-2xl font-semibold mb-6 text-center">Компьютерный клуб "Геймер"</h2>
+            <Card>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-[auto,1fr] gap-4 mb-6">
+                  <FaMapMarkerAlt className="text-2xl text-blue-500" />
+                  <a href="https://2gis.ru/search/пр.%20Ленина%2C%20д.%2015" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                    пр. Ленина, д. 15
+                  </a>
+                  <FaPhone className="text-2xl text-blue-500" />
+                  <a href="tel:+79876543210" className="text-blue-500 hover:underline">
+                    +7 (987) 654-32-10
+                  </a>
+                  <FaUsers className="text-2xl text-blue-500" />
+                  <span>30 мест</span>
+                </div>
+                <div className="mt-4">
+                  <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">Зоны:</h4>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <li className="text-sm">Стандарт (20 мест)</li>
+                    <li className="text-sm">Премиум (10 мест)</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+          
+          <section className="mb-6">
+            <h3 className="text-xl font-semibold mb-6 text-center">Цены и акции</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {club2Prices.map((price, index) => (
+                <PriceCard key={index} {...price} />
+              ))}
+            </div>
+          </section>
+          
+          <section>
+            <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
+            <Tabs defaultValue="standard">
+              <TabsList className="mb-6 flex justify-center">
+                <TabsTrigger value="standard" className="px-6 py-3 text-lg">Стандарт</TabsTrigger>
+                <TabsTrigger value="premium" className="px-6 py-3 text-lg">Премиум</TabsTrigger>
+              </TabsList>
+              <TabsContent value="standard">
+                <HardwareInfo specs={club2Specs} />
+              </TabsContent>
+              <TabsContent value="premium">
+                <HardwareInfo specs={club2Specs.map(spec => ({ ...spec, description: `Премиум ${spec.description}` }))} />
+              </TabsContent>
+            </Tabs>
+          </section>
+        </TabsContent>
+      </Tabs>
+      
+      <div className="text-center my-6">
+        <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
+          <FaCalendarAlt className="mr-2" />
+          Забронировать
+        </Link>
+      </div>
     </div>
   );
 };

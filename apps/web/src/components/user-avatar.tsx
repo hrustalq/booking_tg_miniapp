@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { UserIcon, HistoryIcon, CreditCardIcon, SettingsIcon, LinkIcon } from 'lucide-react';
+import { UserIcon, HistoryIcon, CreditCardIcon, SettingsIcon, LinkIcon, UserPlusIcon } from 'lucide-react';
 
 interface UserAvatarProps extends ComponentProps<"div"> {
   src?: string
@@ -42,6 +42,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback
       ]
     : [
         { to: '/link-account', label: 'Привязать аккаунт', icon: <LinkIcon size={18} /> },
+        { to: '/create-account', label: 'Создать аккаунт', icon: <UserPlusIcon size={18} /> },
       ]
 
   return (
@@ -52,11 +53,11 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback
           <AvatarFallback>{fallback}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 p-2 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+      <DropdownMenuContent className="w-56 p-0 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
         {links.map((link) => (
           <DropdownMenuItem key={link.to} className="p-0 focus:bg-gray-100 dark:focus:bg-gray-800 rounded-md">
             <Link 
-              className="flex items-center gap-x-3 text-base w-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150 ease-in-out rounded-md" 
+              className="flex items-center px-3 py-2 gap-x-3 text-base w-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150 ease-in-out rounded-md" 
               to={link.to}
             >
               {React.cloneElement(link.icon, { className: "text-gray-500 dark:text-gray-400" })}

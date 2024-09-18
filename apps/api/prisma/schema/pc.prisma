@@ -1,5 +1,5 @@
 model PC {
-  id         String    @id @default(cuid())
+  id         Int    @id @default(autoincrement())
   name       String
 
   status     PCStatus  @default(AVAILABLE)
@@ -9,7 +9,7 @@ model PC {
   branchId   String
   branch     Branch    @relation(fields: [branchId], references: [id])
 
-  zoneId     String
+  zoneId     Int
   zone       Zone      @relation(fields: [zoneId], references: [id])
 
   bookings   Booking[]

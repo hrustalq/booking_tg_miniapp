@@ -1,5 +1,5 @@
 model Zone {
-  id          String   @id @default(cuid())
+  id          Int      @id @default(autoincrement())
 
   name        String
   description String?

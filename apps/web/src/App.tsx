@@ -3,14 +3,9 @@ import { AuthProvider } from '@/providers/auth-provider'
 import { RouterProvider } from 'react-router-dom'
 import router from '@/router'
 import LoadingFallback from '@/components/loading-fallback'
-import eruda from 'eruda'
 import '@/assets/globals.css'
 
 function App() {
-  if (process.env.NODE_ENV === 'development') {
-    eruda.init()
-  }
-
   return (
     <ThemeProvider>
       <AuthProvider>

@@ -6,6 +6,8 @@ import NotificationsPage from "./routes/notifications";
 import NotFoundPage from "./not-found";
 import { AuthWrapper } from "./components/auth-wrapper";
 import NewsPage from "./routes/news";
+import LinkAccountPage from "./routes/link-account";
+import BookingPage from "./routes/booking";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +29,14 @@ const router = createBrowserRouter([
       {
         path: "news",
         element: <NewsPage />,
+      },
+      {
+        path: "link-account",
+        element: <LinkAccountPage />,
+      },
+      {
+        path: "booking",
+        element: <BookingPage />,
       },
       {
         path: "*",

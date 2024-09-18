@@ -24,14 +24,11 @@ const Layout: React.FC = () => {
     <div className={`flex flex-col min-h-screen font-sans ${getThemeClasses()}`}>
       <RootHeader title="Bananagun" />
 
-      <main className={`flex-grow p-4 mt-16 ${getThemeClasses()}`}>
+      <main className={`flex-grow p-4 my-16 ${getThemeClasses()}`}>
         <Outlet />
       </main>
 
       <BottomNavigation />
-      <footer className="p-4 text-center text-sm">
-        <p>&copy; {new Date().getFullYear()} Bananagun</p>
-      </footer>
     </div>
   );
 };

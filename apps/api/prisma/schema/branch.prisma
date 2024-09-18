@@ -5,6 +5,11 @@ model Branch {
   address     String
   phoneNumber String?
 
+  apiUrl      String
+
+  authLogin    String   @default("Admin")
+  authPassword String   @default("admin")
+
   pc PC[]
   zones Zone[]
 

@@ -2,7 +2,7 @@ import { BookingStatus } from '@prisma/client';
 
 export class CreateBookingDto {
   userId?: number;
-  pcId: string;
+  pcId: number;
   startTime: Date;
   endTime: Date;
   status?: BookingStatus;
@@ -11,7 +11,7 @@ export class CreateBookingDto {
 
 export class UpdateBookingDto {
   userId?: number;
-  pcId?: string;
+  pcId?: number;
   startTime?: Date;
   endTime?: Date;
   status?: BookingStatus;

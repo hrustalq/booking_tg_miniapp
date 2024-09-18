@@ -1,14 +1,20 @@
 model Booking {
   id        String        @id @default(cuid())
+
   userId    Int?          @unique
   user      TelegramUser? @relation(fields: [userId], references: [id])
-  pcId      String
+
+  pcId      Int
   pc        PC            @relation(fields: [pcId], references: [id])
+
   startTime DateTime
   endTime   DateTime
+  
   status    BookingStatus @default(PENDING)
+
   paymentId String?       @unique
   payment   Payment?      @relation(fields: [paymentId], references: [id])
+  
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
