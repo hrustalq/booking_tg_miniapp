@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs'
 import { FaDesktop, FaKeyboard, FaMouse, FaHeadphones, FaChair, FaPhone, FaMapMarkerAlt, FaUsers, FaCalendarAlt } from 'react-icons/fa';
 import { MdMonitor } from 'react-icons/md';
 import { GiProcessor } from 'react-icons/gi';
-import { useTheme } from '../hooks/use-theme';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 const PriceCard: React.FC<{ title: string; price: string; description: string }> = ({ title, price, description }) => (
@@ -38,8 +37,6 @@ const HardwareInfo: React.FC<{ specs: { icon: React.ReactNode; name: string; des
 );
 
 const RootPage: React.FC = () => {
-  const { theme } = useTheme();
-
   const club1Prices = [
     { title: "Стандарт", price: "от 100 ₽/час", description: "Будни: 100 ₽/час, Выходные: 120 ₽/час" },
     { title: "VIP", price: "от 150 ₽/час", description: "Будни: 150 ₽/час, Выходные: 180 ₽/час" },
@@ -73,21 +70,8 @@ const RootPage: React.FC = () => {
     { icon: <FaChair />, name: "Кресло", description: "Secretlab TITAN Evo 2022" },
   ];
 
-  const getThemeClasses = () => {
-    switch (theme) {
-      case 'dark':
-        return 'bg-gray-900 text-white';
-      case 'light':
-        return 'bg-white text-gray-900';
-      case 'system':
-        return 'bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white';
-      default:
-        return 'bg-white text-gray-900';
-    }
-  };
-
   return (
-    <div className={`mobile-layout ${getThemeClasses()}`}>
+    <div className="flex flex-col">
       <h1 className="text-3xl font-bold mb-4 text-center">Сеть компьютерных клубов Bananagun</h1>
       <p className="text-center mb-4 text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
         Современное оборудование • Комфортная атмосфера • Гибкие тарифы
@@ -102,8 +86,8 @@ const RootPage: React.FC = () => {
       
       <Tabs defaultValue="club1">
         <TabsList className="mb-8 flex justify-center">
-          <TabsTrigger value="club1" className="px-6 py-3 text-lg">Кибер Арена</TabsTrigger>
-          <TabsTrigger value="club2" className="px-6 py-3 text-lg">Геймер</TabsTrigger>
+          <TabsTrigger value="club1" className="px-5 py-3 text-base">Кибер Арена</TabsTrigger>
+          <TabsTrigger value="club2" className="px-5 py-3 text-base">Геймер</TabsTrigger>
         </TabsList>
         <TabsContent value="club1">
           <section className="mb-6">
@@ -147,8 +131,8 @@ const RootPage: React.FC = () => {
             <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
             <Tabs defaultValue="standard">
               <TabsList className="mb-6 flex justify-center">
-                <TabsTrigger value="standard" className="px-6 py-3 text-lg">Стандарт</TabsTrigger>
-                <TabsTrigger value="vip" className="px-6 py-3 text-lg">VIP</TabsTrigger>
+                <TabsTrigger value="standard" className="px-5 py-3 text-base">Стандарт</TabsTrigger>
+                <TabsTrigger value="vip" className="px-5 py-3 text-base">VIP</TabsTrigger>
               </TabsList>
               <TabsContent value="standard">
                 <HardwareInfo specs={club1Specs} />
@@ -214,7 +198,7 @@ const RootPage: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      <div className="text-center my-6">
+      <div className="text-center mt-6">
         <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
           <FaCalendarAlt className="mr-2" />
           Забронировать

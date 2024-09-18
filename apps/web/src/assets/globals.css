@@ -78,14 +78,14 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground flex flex-col overflow-x-hidden dark:bg-gray-900 text-gray-900 bg-gray-100 dark:text-white;
+    min-height: calc(100dvh - 4rem);
     font-feature-settings: "rlig" 1, "calt" 1;
     font-family: var(--font-primary);
   }
-  html,
   body,
   #root {
-    @apply h-full min-h-screen w-screen overflow-x-hidden;
+    @apply h-full w-screen overflow-x-hidden;
   }
   #root {
     @apply flex flex-col;

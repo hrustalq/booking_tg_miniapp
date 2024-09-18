@@ -4,15 +4,16 @@ import { cn } from "@/lib/utils"
 // Добавляем новый тип для иконки
 type IconType = React.ElementType
 
-// Обновляем InputProps, добавляя опциональное свойство icon
+// Обновляем InputProps, добавляя опциональное свойство icon и класс обертки
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   icon?: IconType;
+  wrapperClassName?: string; // Добавляем новое свойство для класса обертки
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, icon: Icon, ...props }, ref) => {
+  ({ className, type, icon: Icon, wrapperClassName, ...props }, ref) => {
     return (
-      <div className="relative">
+      <div className={cn("relative", wrapperClassName)}>
         {Icon && (
           <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
             <Icon className="w-5 h-5 text-gray-400" />

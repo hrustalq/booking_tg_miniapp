@@ -8,6 +8,7 @@ import { AuthWrapper } from "./components/auth-wrapper";
 import NewsPage from "./routes/news";
 import LinkAccountPage from "./routes/link-account";
 import BookingPage from "./routes/booking";
+import CreateAccountPage from "./routes/create-account";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
       {
         path: "link-account",
         element: <LinkAccountPage />,
+      },
+      {
+        path: "create-account",
+        element: <CreateAccountPage />,
       },
       {
         path: "booking",

@@ -1,4 +1,4 @@
-import React, { ComponentProps } from 'react'
+import React, { ComponentProps, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ interface UserAvatarProps extends ComponentProps<"div"> {
 export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback, size = 'md' }) => {
   const { theme } = useTheme()
   const { user } = useAuth()
+  const [isOpen, setIsOpen] = useState(false)
 
   const sizeClasses = {
     sm: 'h-8 w-8',
@@ -46,7 +47,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback
       ]
 
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger>
         <Avatar className={cn(avatarClass, className)}>
           <AvatarImage src={src} alt="User avatar" />
@@ -59,6 +60,7 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback
             <Link 
               className="flex items-center px-3 py-2 gap-x-3 text-base w-full text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150 ease-in-out rounded-md" 
               to={link.to}
+              onClick={() => setIsOpen(false)}
             >
               {React.cloneElement(link.icon, { className: "text-gray-500 dark:text-gray-400" })}
               {link.label}
