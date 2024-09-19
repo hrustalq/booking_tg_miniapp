@@ -31,7 +31,7 @@ jobs:
         run: |
           ssh root@${{ secrets.SERVER_IP }} '
           if [ ! -d "/usr/apps/booking_tg_miniapp/.git" ]; then
-            git clone https://github.com/your-username/your-repo.git /usr/apps/booking_tg_miniapp;
+            git clone git@github.com:hrustalq/booking_tg_miniapp.git /usr/apps;
           fi
           '
 
