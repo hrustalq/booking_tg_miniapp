@@ -1,4 +1,4 @@
-name: Deploy
+name: Update Code
 
 on:
   workflow_dispatch:
@@ -7,10 +7,9 @@ on:
       - main
 
 jobs:
-  deploy:
+  update-code:
     runs-on: ubuntu-latest
     environment: 'production'
-    needs: [prepare-server, update-code, setup-ssl, setup-environment]
     steps:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.0
@@ -20,5 +19,5 @@ jobs:
       - name: Add VPS to known hosts
         run: ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      - name: Deploy
-        run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && make build && make up'
+      - name: Pull latest code
+        run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && git pull origin main'
