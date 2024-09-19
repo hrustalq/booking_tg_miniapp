@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, Variant } from 'framer-motion';
 import { FaSearch, FaDesktop } from 'react-icons/fa';
 import { Card, CardContent } from '../components/ui/card';
@@ -10,44 +10,89 @@ import { Calendar, User, MapPin, Monitor, Gamepad2, Phone, Clock, Wifi, CreditCa
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-
-// Mock data
-const clubs = [
-  { id: 1, name: 'Cyber Arena', address: 'ул. Пушкина, д. 10', phone: '+7 (999) 123-45-67', workingHours: '10:00 - 22:00', hasWifi: true, acceptsCards: true },
-  { id: 2, name: 'Gamer', address: 'пр. Ленина, д. 15', phone: '+7 (999) 987-65-43', workingHours: '12:00 - 00:00', hasWifi: true, acceptsCards: false },
-];
-
-const zones = [
-  { id: 1, name: 'Стандарт', pricePerHour: 100, pcCount: 20, devices: 'Intel Core i5, 16GB RAM, GTX 1660' },
-  { id: 2, name: 'VIP', pricePerHour: 150, pcCount: 10, devices: 'Intel Core i7, 32GB RAM, RTX 3070' },
-  { id: 3, name: 'Турнирная', pricePerHour: 200, pcCount: 5, devices: 'Intel Core i9, 64GB RAM, RTX 3080' },
-];
-
-const computers = Array.from({ length: 20 }, (_, i) => ({
-  id: i + 1,
-  number: `PC${i + 1}`,
-  isAvailable: Math.random() > 0.3,
-}));
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { branchesApi, PaginatedResponse, PaginationParams } from '@/api';
+import { Branch } from '@/api/branches/types';
+import { Autocomplete } from '@/components/ui/autocomplete';
+import { Skeleton } from "@/components/ui/skeleton";
+import { pcsApi } from '@/api';
+import { Pc, PcStatus } from '@/api/pcs/types';
+import { zonesApi } from '@/api';
+import { Zone } from '@/api/zones/types';
 
 const BookingPage: React.FC = () => {
   const [step, setStep] = useState(1);
-  const [selectedClub, setSelectedClub] = useState<number | null>(null);
-  const [selectedZone, setSelectedZone] = useState<number | null>(null);
-  const [selectedComputer, setSelectedComputer] = useState<number | null>(null);
+  const [selectedClub, setSelectedClub] = useState<Branch | null>(null);
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+  const [selectedComputer, setSelectedComputer] = useState<Pc | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState("available");
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [gameAccount, setGameAccount] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
-  // Оптимизация: используйте useMemo для фильтрации компьютеров
-  const filteredComputers = React.useMemo(() => 
-    computers.filter(computer =>
-      computer.number.toLowerCase().includes(searchTerm.toLowerCase())
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isLoading,
+  } = useInfiniteQuery<PaginatedResponse<Branch>, Error>({
+    queryKey: ['branches'],
+    queryFn: ({ pageParam }) => branchesApi.getBranches(pageParam as PaginationParams),
+    initialPageParam: {
+      page: 1,
+      limit: 10,
+    },
+    getNextPageParam: (lastPage) => lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+  });
+
+  const branches = data?.pages.flatMap(page => page.items) ?? [];
+
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetching) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetching, fetchNextPage]);
+
+  const {
+    data: pcsData,
+    fetchNextPage: fetchNextPcsPage,
+    hasNextPage: hasNextPcsPage,
+    isFetching: isPcsFetching,
+    isLoading: isPcsLoading,
+  } = useInfiniteQuery<PaginatedResponse<Pc>, Error>({
+    queryKey: ['pcs', selectedZone, selectedClub?.id],
+    queryFn: ({ pageParam }) => pcsApi.getPcs({ 
+      zoneId: selectedZone!.id, 
+      branchId: selectedClub!.id, 
+      ...pageParam as PaginationParams 
+    }),
+    initialPageParam: {
+      page: 1,
+      limit: 10,
+    },
+    getNextPageParam: (lastPage) => lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    enabled: !!selectedZone && !!selectedClub,
+  });
+
+  const pcs = useMemo(() => {
+    return pcsData?.pages.flatMap(page => page.items) ?? [];
+  }, [pcsData]);
+
+  const handleLoadMorePcs = useCallback(() => {
+    if (hasNextPcsPage && !isPcsFetching) {
+      fetchNextPcsPage();
+    }
+  }, [hasNextPcsPage, isPcsFetching, fetchNextPcsPage]);
+
+  // Фильтрация компьютеров по поисковому запросу
+  const filteredPcs = useMemo(() => 
+    pcs.filter(pc =>
+      pc.name.toLowerCase().includes(searchTerm.toLowerCase())
     ),
-    [searchTerm]
+    [pcs, searchTerm]
   );
 
   const pageVariants: Record<string, Variant> = {
@@ -67,7 +112,7 @@ const BookingPage: React.FC = () => {
 
   const pageTransition = {
     type: 'tween',
-    ease: [0.25, 0.1, 0.25, 1], // cubic-bezier easing
+    ease: [0.25, 0.1, 0.25, 1],
     duration: 0.28,
   };
 
@@ -80,54 +125,121 @@ const BookingPage: React.FC = () => {
     }
   }, []);
 
+  const {
+    data: zonesData,
+    fetchNextPage: fetchNextZonesPage,
+    hasNextPage: hasNextZonesPage,
+    isFetching: isZonesFetching,
+    isLoading: isZonesLoading,
+  } = useInfiniteQuery<PaginatedResponse<Zone>, Error>({
+    queryKey: ['zones', selectedClub?.id],
+    queryFn: ({ pageParam }) => zonesApi.getZones({ 
+      branchId: selectedClub!.id, 
+      ...pageParam as PaginationParams 
+    }),
+    initialPageParam: {
+      page: 1,
+      limit: 10,
+    },
+    getNextPageParam: (lastPage) => lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    enabled: !!selectedClub,
+  });
+
+  const zones = zonesData?.pages.flatMap(page => page.items) ?? [];
+
+  const handleLoadMoreZones = useCallback(() => {
+    if (hasNextZonesPage && !isZonesFetching) {
+      fetchNextZonesPage();
+    }
+  }, [hasNextZonesPage, isZonesFetching, fetchNextZonesPage]);
+
+  const isNextButtonDisabled = useMemo(() => {
+    switch (step) {
+      case 1:
+        return !selectedClub || branches.length === 0;
+      case 2:
+        return !selectedZone || zones.length === 0;
+      case 3:
+        return !selectedComputer || filteredPcs.length === 0;
+      default:
+        return false;
+    }
+  }, [step, selectedClub, selectedZone, selectedComputer, branches.length, zones.length, filteredPcs.length]);
+
   const stepComponents = [
     {
       key: 'step1',
       title: 'Выберите компьютерный клуб',
       content: (
-        <ScrollArea className="flex-grow h-auto">
-          <div className="grid grid-cols-1 gap-3">
-            {clubs.map(club => (
-              <Card
-                key={club.id}
-                className={`cursor-pointer transition-colors duration-300 ${selectedClub === club.id ? 'border-blue-500' : ''}`}
-                onClick={() => setSelectedClub(club.id)}
-              >
-                <CardContent className="p-4">
-                  <h3 className="text-xl font-semibold">{club.name}</h3>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex items-center text-gray-600 dark:text-gray-400">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      <p>{club.address}</p>
+        <div className="flex flex-col h-full">
+          <Autocomplete
+            options={branches}
+            onSelect={(branch) => setSelectedClub(branch)}
+            placeholder="Поиск по названию клуба"
+            emptyMessage="Клубы не найдены"
+            displayKey="name"
+            className="mb-4"
+          />
+          <ScrollArea className="flex-grow">
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <ClubSkeleton key={index} />
+              ))
+            ) : branches.length > 0 ? (
+              branches.map((branch) => (
+                <Card
+                  key={branch.id}
+                  className={`cursor-pointer transition-colors duration-300 mb-4 ${
+                    selectedClub?.id === branch.id ? 'border-blue-500' : ''
+                  }`}
+                  onClick={() => setSelectedClub(branch)}
+                >
+                  <CardContent className="p-4">
+                    <h3 className="text-xl font-semibold">{branch.name}</h3>
+                    <div className="mt-2 space-y-2">
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        <p>{branch.address}</p>
+                      </div>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <Phone className="w-4 h-4 mr-2" />
+                        <p>{branch.phoneNumber}</p>
+                      </div>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <Clock className="w-4 h-4 mr-2" />
+                        <p>{branch.workingHours}</p>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        {branch.hasWifi && (
+                          <div className="flex items-center text-green-500">
+                            <Wifi className="w-4 h-4 mr-1" />
+                            <span className="text-sm">Wi-Fi</span>
+                          </div>
+                        )}
+                        {branch.acceptsCards && (
+                          <div className="flex items-center text-blue-500">
+                            <CreditCard className="w-4 h-4 mr-1" />
+                            <span className="text-sm">Оплата картой</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center text-gray-600 dark:text-gray-400">
-                      <Phone className="w-4 h-4 mr-2" />
-                      <p>{club.phone}</p>
-                    </div>
-                    <div className="flex items-center text-gray-600 dark:text-gray-400">
-                      <Clock className="w-4 h-4 mr-2" />
-                      <p>{club.workingHours}</p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      {club.hasWifi && (
-                        <div className="flex items-center text-green-500">
-                          <Wifi className="w-4 h-4 mr-1" />
-                          <span className="text-sm">Wi-Fi</span>
-                        </div>
-                      )}
-                      {club.acceptsCards && (
-                        <div className="flex items-center text-blue-500">
-                          <CreditCard className="w-4 h-4 mr-1" />
-                          <span className="text-sm">Оплата картой</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </ScrollArea>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <EmptyState
+                icon={<MapPin className="w-16 h-16" />}
+                message="Клубы не найдены"
+              />
+            )}
+            {hasNextPage && (
+              <Button onClick={handleLoadMore} disabled={isFetching}>
+                {isFetching ? 'Загрузка...' : 'Загрузить еще'}
+              </Button>
+            )}
+          </ScrollArea>
+        </div>
       ),
     },
     {
@@ -136,37 +248,55 @@ const BookingPage: React.FC = () => {
       content: (
         <ScrollArea className="flex-grow">
           <div className="grid grid-cols-1 gap-4">
-            {zones.map(zone => (
-              <Card
-                key={zone.id}
-                className={`cursor-pointer transition-colors duration-300 ${selectedZone === zone.id ? 'border-blue-500' : ''}`}
-                onClick={() => setSelectedZone(zone.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-xl font-semibold">{zone.name}</h3>
-                    <div className="flex items-center text-green-600">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      <span>{zone.pricePerHour} ₽/час</span>
+            {isZonesLoading ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <ZoneSkeleton key={index} />
+              ))
+            ) : zones.length > 0 ? (
+              zones.map(zone => (
+                <Card
+                  key={zone.id}
+                  className={`cursor-pointer transition-colors duration-300 ${selectedZone?.id === zone.id ? 'border-blue-500' : ''}`}
+                  onClick={() => setSelectedZone(zone)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-xl font-semibold">{zone.name}</h3>
+                      <div className="flex items-center text-green-600">
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        <span>{zone.hourlyRate} ₽/час</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-center text-gray-600 dark:text-gray-400">
-                      <Monitor className="w-4 h-4 mr-2" />
-                      <span>{zone.pcCount} ПК</span>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <Monitor className="w-4 h-4 mr-2" />
+                        <span>{zone.pcAmount} ПК</span>
+                      </div>
+                      <div className="flex items-center text-gray-600 dark:text-gray-400">
+                        <Users className="w-4 h-4 mr-2" />
+                        <span>До {zone.pcAmount} игроков</span>
+                      </div>
+                      {zone.pcSpecs && (
+                        <div className="col-span-2 flex items-center text-gray-600 dark:text-gray-400">
+                          <Cpu className="w-4 h-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">{zone.pcSpecs}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center text-gray-600 dark:text-gray-400">
-                      <Users className="w-4 h-4 mr-2" />
-                      <span>До {zone.pcCount} игроков</span>
-                    </div>
-                    <div className="col-span-2 flex items-center text-gray-600 dark:text-gray-400">
-                      <Cpu className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <span className="truncate">{zone.devices}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <EmptyState
+                icon={<Monitor className="w-16 h-16" />}
+                message="Зоны не найдены"
+              />
+            )}
+            {hasNextZonesPage && (
+              <Button onClick={handleLoadMoreZones} disabled={isZonesFetching}>
+                {isZonesFetching ? 'Загрузка...' : 'Загрузить еще'}
+              </Button>
+            )}
           </div>
         </ScrollArea>
       ),
@@ -208,20 +338,27 @@ const BookingPage: React.FC = () => {
             <ScrollArea className="h-[45dvh] rounded-md border">
               <TabsContent value="available" className="m-0 p-4">
                 <ComputerGrid
-                  computers={filteredComputers.filter(c => c.isAvailable)}
+                  computers={filteredPcs.filter(c => c.status === PcStatus.AVAILABLE)}
                   selectedComputer={selectedComputer}
                   onSelectComputer={setSelectedComputer}
+                  isLoading={isPcsLoading}
                 />
               </TabsContent>
               <TabsContent value="all" className="m-0 p-4">
                 <ComputerGrid
-                  computers={filteredComputers}
+                  computers={filteredPcs}
                   selectedComputer={selectedComputer}
                   onSelectComputer={setSelectedComputer}
+                  isLoading={isPcsLoading}
                 />
               </TabsContent>
             </ScrollArea>
           </Tabs>
+          {hasNextPcsPage && (
+            <Button onClick={handleLoadMorePcs} disabled={isPcsFetching} className="mt-4">
+              {isPcsFetching ? 'Загрузка...' : 'Загрузить еще'}
+            </Button>
+          )}
         </>
       ),
     },
@@ -230,7 +367,6 @@ const BookingPage: React.FC = () => {
       title: 'Подтверждение бронирования',
       content: (
         <ScrollArea 
-          ref={scrollAreaRef}
           className="h-[60dvh] rounded-md relative"
         >
           <div className="space-y-3">
@@ -242,21 +378,21 @@ const BookingPage: React.FC = () => {
                     <MapPin className="text-blue-500" />
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Клуб</p>
-                      <p className="font-medium">{clubs.find(c => c.id === selectedClub)?.name}</p>
+                      <p className="font-medium">{selectedClub?.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <Monitor className="text-green-500" />
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Зона</p>
-                      <p className="font-medium">{zones.find(z => z.id === selectedZone)?.name}</p>
+                      <p className="font-medium">{selectedZone?.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
                     <Gamepad2 className="text-purple-500" />
                     <div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Компьютер</p>
-                      <p className="font-medium">{computers.find(c => c.id === selectedComputer)?.number}</p>
+                      <p className="font-medium">{selectedComputer?.name}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -331,7 +467,7 @@ const BookingPage: React.FC = () => {
         {step < 4 ? (
           <Button 
             onClick={() => handleButtonClick('next')} 
-            disabled={(step === 1 && !selectedClub) || (step === 2 && !selectedZone) || (step === 3 && !selectedComputer)}
+            disabled={isNextButtonDisabled}
             className='grow shrink-0'
           >
             Далее
@@ -410,26 +546,37 @@ const BookingPage: React.FC = () => {
 };
 
 interface ComputerGridProps {
-  computers: { id: number; number: string; isAvailable: boolean }[];
-  selectedComputer: number | null;
-  onSelectComputer: (id: number) => void;
+  computers: Pc[];
+  selectedComputer: Pc | null;
+  onSelectComputer: (pc: Pc) => void;
+  isLoading: boolean;
 }
 
-const ComputerGrid: React.FC<ComputerGridProps> = React.memo(({ computers, selectedComputer, onSelectComputer }) => (
+const ComputerGrid: React.FC<ComputerGridProps> = React.memo(({ computers, selectedComputer, onSelectComputer, isLoading }) => (
   <div className="grid grid-cols-3 gap-4 mb-4">
-    {computers.map((computer) => (
-      <ComputerCard
-        key={computer.id}
-        computer={computer}
-        onClick={() => onSelectComputer(computer.id)}
-        isSelected={selectedComputer === computer.id}
-      />
-    ))}
+    {isLoading ? (
+      Array.from({ length: 6 }).map((_, index) => (
+        <ComputerSkeleton key={index} />
+      ))
+    ) : computers.length > 0 ? (
+      computers.map((computer) => (
+        <ComputerCard
+          key={computer.id}
+          computer={computer}
+          onClick={() => onSelectComputer(computer)}
+          isSelected={selectedComputer?.id === computer.id}
+        />
+      ))
+    ) : (
+      <div className="col-span-3">
+        <EmptyState icon={<FaDesktop className="w-16 h-16" />} message="Компьютеры не найдены" />
+      </div>
+    )}
   </div>
 ));
 
 interface ComputerCardProps {
-  computer: { id: number; number: string; isAvailable: boolean };
+  computer: Pc;
   onClick: () => void;
   isSelected: boolean;
 }
@@ -437,29 +584,86 @@ interface ComputerCardProps {
 const ComputerCard: React.FC<ComputerCardProps> = React.memo(({ computer, onClick, isSelected }) => (
   <div
     className={`relative rounded-lg overflow-hidden shadow-md transition-all duration-300 ${
-      computer.isAvailable
+      computer.status === PcStatus.AVAILABLE
         ? isSelected
           ? 'bg-blue-100 dark:bg-blue-900 ring-2 ring-blue-500'
           : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
         : 'bg-red-100 dark:bg-red-900 cursor-not-allowed'
     }`}
-    onClick={computer.isAvailable ? onClick : undefined}
+    onClick={computer.status === PcStatus.AVAILABLE ? onClick : undefined}
   >
     <div className="p-4 pb-5">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-lg font-semibold">{computer.number}</span>
-        <FaDesktop className={`text-xl ${computer.isAvailable ? (isSelected ? 'text-blue-500' : 'text-green-500') : 'text-red-500'}`} />
+        <span className="text-lg font-semibold">{computer.name}</span>
+        <FaDesktop className={`text-xl ${computer.status === PcStatus.AVAILABLE ? (isSelected ? 'text-blue-500' : 'text-green-500') : 'text-red-500'}`} />
       </div>
       <div className="text-sm font-medium">
-        {computer.isAvailable ? (isSelected ? 'Выбрано' : 'Свободно') : 'Занято'}
+        {computer.status === PcStatus.AVAILABLE ? (isSelected ? 'Выбрано' : 'Свободно') : 'Занято'}
       </div>
     </div>
-    {!computer.isAvailable && (
+    {computer.status !== PcStatus.AVAILABLE && (
       <div className="absolute bottom-0 inset-x-0 bg-red-500 bg-opacity-20 flex items-center justify-center">
         <span className="text-red-700 dark:text-red-100 font-bold text-xs">Недоступен</span>
       </div>
     )}
   </div>
 ));
+
+const ComputerSkeleton: React.FC = () => (
+  <div className="rounded-lg overflow-hidden shadow-md bg-gray-200 dark:bg-gray-700 animate-pulse">
+    <div className="p-4 pb-5">
+      <div className="flex items-center justify-between mb-2">
+        <div className="h-6 w-20 bg-gray-300 dark:bg-gray-600 rounded"></div>
+        <div className="h-6 w-6 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+      </div>
+      <div className="h-4 w-16 bg-gray-300 dark:bg-gray-600 rounded"></div>
+    </div>
+  </div>
+);
+
+const ClubSkeleton: React.FC = () => (
+  <Card>
+    <CardContent className="p-4">
+      <Skeleton className="h-6 w-3/4 mb-2" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <div className="flex space-x-4">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const ZoneSkeleton: React.FC = () => (
+  <Card className="animate-pulse">
+    <CardContent className="p-4">
+      <div className="flex justify-between items-center mb-2">
+        <Skeleton className="h-6 w-1/3" />
+        <Skeleton className="h-6 w-1/4" />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full col-span-2" />
+      </div>
+    </CardContent>
+  </Card>
+);
+
+interface EmptyStateProps {
+  icon: React.ReactNode;
+  message: string;
+}
+
+const EmptyState: React.FC<EmptyStateProps> = ({ icon, message }) => (
+  <div className="flex flex-col items-center justify-center h-full py-12 text-gray-500 dark:text-gray-400">
+    {icon}
+    <p className="text-lg font-medium">{message}</p>
+  </div>
+);
 
 export default BookingPage;

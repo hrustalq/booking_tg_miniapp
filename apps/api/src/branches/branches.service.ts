@@ -45,7 +45,10 @@ export class BranchesService implements OnModuleInit {
 
   create(createBranchDto: CreateBranchDto) {
     return this.prisma.branch.create({
-      data: createBranchDto,
+      data: {
+        ...createBranchDto,
+        workingHours: createBranchDto.workingHours || ['Круглосуточно'],
+      },
     });
   }
 
@@ -55,6 +58,16 @@ export class BranchesService implements OnModuleInit {
       this.prisma.branch.findMany({
         skip,
         take: limit,
+        select: {
+          id: true,
+          name: true,
+          address: true,
+          phoneNumber: true,
+          apiUrl: true,
+          workingHours: true,
+          hasWifi: true,
+          acceptsCards: true,
+        },
       }),
       this.prisma.branch.count(),
     ]);

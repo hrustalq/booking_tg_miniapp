@@ -19,14 +19,30 @@ export class ZonesService {
     });
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, branchId: string) {
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       this.prisma.zone.findMany({
         skip,
         take: limit,
+        where: {
+          branchId,
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          hourlyRate: true,
+          branchId: true,
+          pcAmount: true,
+          pcSpecs: true,
+        },
       }),
-      this.prisma.zone.count(),
+      this.prisma.zone.count({
+        where: {
+          branchId,
+        },
+      }),
     ]);
     return {
       items,
@@ -37,20 +53,20 @@ export class ZonesService {
     };
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.prisma.zone.findUnique({
       where: { id },
     });
   }
 
-  update(id: number, updateZoneDto: UpdateZoneDto) {
+  update(id: string, updateZoneDto: UpdateZoneDto) {
     return this.prisma.zone.update({
       where: { id },
       data: updateZoneDto,
     });
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this.prisma.zone.delete({
       where: { id },
     });
@@ -68,20 +84,25 @@ export class ZonesService {
           'Pagination.Limit': 1000,
         };
         const { data: response }: GetHostgroupsResponse = await apiClient.get(
-          '/api/v2.0/hostgroups',
+          '/api/hostgroups',
           { params },
         );
-        response.result.data.forEach((hostgroup) => {
-          this.prisma.zone.upsert({
-            where: { id: hostgroup.id },
+        response.result.forEach(async (hostgroup) => {
+          await this.prisma.zone.upsert({
+            where: {
+              internalId_branchId: {
+                branchId: branch.id,
+                internalId: hostgroup.id,
+              },
+            },
             update: {
-              id: hostgroup.id,
               branchId: branch.id,
+              internalId: hostgroup.id,
               name: hostgroup.name,
               hourlyRate: 0,
             },
             create: {
-              id: hostgroup.id,
+              internalId: hostgroup.id,
               branchId: branch.id,
               name: hostgroup.name,
               hourlyRate: 0,

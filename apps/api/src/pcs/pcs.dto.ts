@@ -5,7 +5,7 @@ export class CreatePcDto implements Partial<PC> {
   status?: PCStatus;
   location?: string;
   branchId: string;
-  zoneId: number;
+  zoneId: string;
 }
 
 export class UpdatePcDto implements Partial<PC> {
@@ -13,5 +13,5 @@ export class UpdatePcDto implements Partial<PC> {
   status?: PCStatus;
   location?: string;
   branchId?: string;
-  zoneId?: number;
+  zoneId?: string;
 }

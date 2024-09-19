@@ -20,14 +20,31 @@ export class PcsService {
     });
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, zoneId: string, branchId: string) {
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       this.prisma.pC.findMany({
         skip,
         take: limit,
+        where: {
+          zoneId,
+          branchId,
+        },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          location: true,
+          branchId: true,
+          zoneId: true,
+        },
       }),
-      this.prisma.pC.count(),
+      this.prisma.pC.count({
+        where: {
+          zoneId,
+          branchId,
+        },
+      }),
     ]);
     return {
       items,
@@ -57,7 +74,7 @@ export class PcsService {
     });
   }
 
-  @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async fetchHostsForAllBranches() {
     const branches = await this.branchesService.findAll(1, 100);
     for (const branch of branches.items) {
@@ -68,10 +85,12 @@ export class PcsService {
 
       for (const host of response.data.result.data) {
         if (!host.hostGroupId || host.isDeleted) continue;
-        const zone = await this.prisma.zone.findFirst({
+        const zone = await this.prisma.zone.findUnique({
           where: {
-            id: host.hostGroupId,
-            branchId: branch.id,
+            internalId_branchId: {
+              internalId: host.hostGroupId,
+              branchId: branch.id,
+            },
           },
         });
 
@@ -83,14 +102,20 @@ export class PcsService {
         }
 
         await this.prisma.pC.upsert({
-          where: { id: host.id, branchId: branch.id },
+          where: {
+            internalId_branchId: {
+              internalId: host.id,
+              branchId: branch.id,
+            },
+          },
           update: {
             name: host.name,
             status: 'AVAILABLE',
+            internalId: host.id,
             zoneId: zone.id,
           },
           create: {
-            id: host.id,
+            internalId: host.id,
             branchId: branch.id,
             name: host.name,
             status: 'AVAILABLE',

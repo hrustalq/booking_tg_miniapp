@@ -9,3 +9,11 @@ export interface GizmoApiPaginatedResponse<T> {
   message: string | null;
   isError: boolean;
 }
+
+export interface GizmoApiWrappedResponse<T> {
+  version: string | null;
+  result: T;
+  httpStatusCode: number;
+  message: string | null;
+  isError: boolean;
+}

@@ -10,8 +10,14 @@ model Branch {
   authLogin    String   @default("Admin")
   authPassword String   @default("admin")
 
+  workingHours String[]
+  hasWifi      Boolean  @default(true)
+  acceptsCards Boolean  @default(false)
+
   pc PC[]
   zones Zone[]
+
+  users GizmoUser[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

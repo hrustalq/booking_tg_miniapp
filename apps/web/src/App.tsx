@@ -8,6 +8,13 @@ import { useEffect } from 'react'
 import WebApp from '@twa-dev/sdk'
 import { useTheme } from '@/hooks/use-theme'
 
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
 function AppContent() {
   const { theme } = useTheme()
 
@@ -21,17 +28,19 @@ function AppContent() {
   }, [theme])
 
   return (
-    <AuthProvider>
-      <RouterProvider router={router} fallbackElement={<LoadingFallback />} />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} fallbackElement={<LoadingFallback />} />
+        </QueryClientProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
 function App() {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <AppContent />
   )
 }
 

@@ -49,8 +49,13 @@ export class PcsController {
     status: 200,
     description: 'Список компьютеров успешно получен',
   })
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.pcsService.findAll(page, limit);
+  findAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('zoneId') zoneId: string = '1',
+    @Query('branchId') branchId: string = '1',
+  ) {
+    return this.pcsService.findAll(+page, +limit, zoneId, branchId);
   }
 
   @Get(':id')

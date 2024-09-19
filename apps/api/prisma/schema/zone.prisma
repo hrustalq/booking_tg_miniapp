@@ -1,18 +1,23 @@
 model Zone {
-  id          Int      @id @default(autoincrement())
+  id String @id @default(uuid())
 
   name        String
   description String?
 
-  hourlyRate  Float
+  hourlyRate Float
 
-  branchId   String
-  branch     Branch    @relation(fields: [branchId], references: [id])
+  internalId Int @default(autoincrement())
 
-  pcs        PC[]
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
 
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  pcAmount Int     @default(0)
+  pcSpecs  String?
 
-  @@unique([name, branchId])
+  pcs PC[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([internalId, branchId])
 }

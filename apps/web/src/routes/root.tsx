@@ -46,7 +46,7 @@ const RootPage: React.FC = () => {
 
   const club2Prices = [
     { title: "Стандарт", price: "от 90 ₽/час", description: "Будни: 90 ₽/час, Выходные: 110 ₽/час" },
-    { title: "Премиум", price: "от 130 ���/чс", description: "Будни: 130 ₽/час, Выходные: 160 ₽/час" },
+    { title: "Премиум", price: "от 130 /чс", description: "Будни: 130 ₽/час, Выходные: 160 ₽/час" },
     { title: "Дневной пакет", price: "400 ₽", description: "С 10:00 до 18:00, безлимитное время" },
   ];
 

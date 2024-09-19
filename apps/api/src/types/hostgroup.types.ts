@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { GizmoApiPaginatedResponse } from './gizmo.types';
+import { GizmoApiWrappedResponse } from './gizmo.types';
 
 export interface IHostgroup {
   id: number;
@@ -12,5 +12,5 @@ export interface IHostgroup {
 }
 
 export type GetHostgroupsResponse = AxiosResponse<
-  GizmoApiPaginatedResponse<IHostgroup>
+  GizmoApiWrappedResponse<IHostgroup[]>
 >;

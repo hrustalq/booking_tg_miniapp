@@ -1,17 +1,25 @@
 model GizmoUser {
-  id       String @id @default(uuid())
-  guid     String @unique
+  id       Int    @id @default(autoincrement())
+
+  internalId Int @default(autoincrement())
+
+  guid     String
   username String
 
   balance Float @default(0)
+  phone   String? @default("")
+
+  branch Branch? @relation(fields: [branchId], references: [id])
+  branchId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  telegramUser   TelegramUser?
-  telegramUserId String?       @unique
+  telegramUser   TelegramUser? @relation(fields: [telegramUserId], references: [id])       
+  telegramUserId Int? @unique
 
   @@index([telegramUserId])
+  @@unique([branchId, internalId])
 }
 
 model TelegramUser {
@@ -28,8 +36,7 @@ model TelegramUser {
 
   role Role @default(GUEST)
 
-  gizmoProfile   GizmoUser? @relation(fields: [gizmoProfileId], references: [id])
-  gizmoProfileId String?    @unique
+  gizmoProfile   GizmoUser[]
 
   bookings Booking[]
 
@@ -38,8 +45,6 @@ model TelegramUser {
 
   notifications      Notification[]
   paymentCredentials PaymentCredentials[]
-
-  @@index([gizmoProfileId])
 }
 
 enum Role {
