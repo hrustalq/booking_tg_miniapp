@@ -20,6 +20,8 @@ services:
         - TURBO_TEAM=${TURBO_TEAM}
     environment:
       - NODE_ENV=development
+    env_file:
+      - ./apps/api/.env
     networks:
       - app_network
 

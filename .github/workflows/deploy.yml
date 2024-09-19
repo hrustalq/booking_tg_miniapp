@@ -49,5 +49,11 @@ jobs:
           chmod 600 /usr/apps/booking_tg_miniapp/nginx/cert.pem /usr/apps/booking_tg_miniapp/nginx/key.pem
           '
 
+      - name: Update API .env file
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} '
+          echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" > /usr/apps/booking_tg_miniapp/apps/api/.env
+          '
+
       - name: Deploy
         run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && make build && make up'
