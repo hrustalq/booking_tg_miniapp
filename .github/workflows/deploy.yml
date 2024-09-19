@@ -47,14 +47,7 @@ jobs:
 
       # Install Docker if not installed
       - name: Install Docker
-        run: |
-          ssh root@${{ secrets.SERVER_IP }} '
-          if ! command -v docker &> /dev/null; then
-            curl -fsSL https://get.docker.com -o get-docker.sh &&
-            sh get-docker.sh &&
-            rm get-docker.sh;
-          fi
-          '
+        run: ssh root@${{ secrets.SERVER_IP }} 'cd /usr/apps/booking_tg_miniapp && ./docker.sh'
 
       - name: Cache turbo build setup
         uses: actions/cache@v4
