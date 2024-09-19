@@ -35,7 +35,7 @@ export class UsersController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Получить список пользователе��' })
+  @ApiOperation({ summary: 'Получить список пользователей' })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -149,5 +149,42 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'Gizmo user not found' })
   linkAccount(@Body() linkAccountDto: LinkAccountDto) {
     return this.usersService.linkAccount(linkAccountDto);
+  }
+
+  @Get('fill-database-from-gizmo')
+  @ApiOperation({ summary: 'Заполнить базу данных пользователями из Gizmo' })
+  @ApiResponse({ status: 200, description: 'База данных успешно заполнена' })
+  @ApiResponse({
+    status: 500,
+    description: 'Ошибка при заполнении базы данных',
+  })
+  async fillDatabaseFromGizmo() {
+    try {
+      await this.usersService.fillDatabaseFromGizmo();
+      return {
+        message: 'База данных успешно заполнена пользователями из Gizmo',
+      };
+    } catch (error) {
+      throw new Error('Ошибка при заполнении базы данных из Gizmo');
+    }
+  }
+
+  @Get('update-user-balances')
+  @ApiOperation({ summary: 'Обновить балансы пользователей' })
+  @ApiResponse({
+    status: 200,
+    description: 'Балансы пользователей успешно обновлены',
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Ошибка при обновлении балансов пользователей',
+  })
+  async updateUserBalances() {
+    try {
+      await this.usersService.updateUserBalances();
+      return { message: 'Балансы пользователей успешно обновлены' };
+    } catch (error) {
+      throw new Error('Ошибка при обновлении балансов пользователей');
+    }
   }
 }

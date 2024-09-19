@@ -73,7 +73,8 @@ export class ZonesService {
   }
 
   @Cron(CronExpression.EVERY_HOUR)
-  async fillDatabaseFromBranches() {
+  public async fillDatabaseFromBranches() {
+    // Метод для заполнения базы данных информацией о зонах из филиалов
     try {
       const branches = await this.branchesService.findAll(1, 100);
       branches.items.forEach(async (branch) => {
@@ -111,7 +112,8 @@ export class ZonesService {
         });
       });
     } catch (error) {
-      console.error('Error filling database from branches:', error);
+      console.error('Ошибка при заполнении базы данных из филиалов:', error);
+      throw error; // Повторно выбрасываем ошибку для обработки в контроллере
     }
   }
 }

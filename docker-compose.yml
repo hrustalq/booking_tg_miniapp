@@ -7,7 +7,7 @@ services:
         - TURBO_TOKEN=${TURBO_TOKEN}
         - TURBO_TEAM=${TURBO_TEAM}
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     networks:
       - app_network
 
@@ -19,7 +19,7 @@ services:
         - TURBO_TOKEN=${TURBO_TOKEN}
         - TURBO_TEAM=${TURBO_TEAM}
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     env_file:
       - ./apps/api/.env
     networks:

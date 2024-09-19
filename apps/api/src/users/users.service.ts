@@ -73,6 +73,7 @@ export class UsersService {
       const branches = await this.branchesService.findAll(1, 100);
       for (const branch of branches.items) {
         const apiClient = this.branchesService.getApiClient(branch.id);
+        if (!apiClient) continue;
         const response: GizmoUsersResponse = await apiClient.get('/api/users', {
           params: {
             isDeleted: false,

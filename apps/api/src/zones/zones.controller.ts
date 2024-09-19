@@ -81,7 +81,7 @@ export class ZoneController {
     description: 'Данные зоны успешно обновлены',
   })
   @ApiResponse({ status: 400, description: 'Неверный запрос' })
-  @ApiResponse({ status: 404, description: 'Зона не найдена' })
+  @ApiResponse({ status: 404, description: 'Зона не айдена' })
   update(@Param('id') id: string, @Body() updateZoneDto: UpdateZoneDto) {
     return this.zonesService.update(id, updateZoneDto);
   }
@@ -93,5 +93,24 @@ export class ZoneController {
   @ApiResponse({ status: 404, description: 'Зона не найдена' })
   remove(@Param('id') id: string) {
     return this.zonesService.remove(id);
+  }
+
+  @Get('fill-zones')
+  @ApiOperation({
+    summary:
+      'Вручную выполнить заполнение базы данных по списку зон из филиалов',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Заполнение базы данных успешно выполнено',
+  })
+  @ApiResponse({ status: 500, description: 'Внутренняя ошибка сервера' })
+  async manualFillDatabase() {
+    try {
+      await this.zonesService.fillDatabaseFromBranches();
+      return { message: 'Заполнение базы данных успешно выполнено' };
+    } catch (error) {
+      throw new Error('Не удалось выполнить заполнение базы данных');
+    }
   }
 }

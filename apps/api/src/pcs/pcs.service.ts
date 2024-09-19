@@ -4,14 +4,12 @@ import { BranchesService } from '../branches/branches.service';
 import { CreatePcDto, UpdatePcDto } from './pcs.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { GetHostsResponse } from 'src/types/host.types';
-import { ZonesService } from 'src/zones/zones.service';
 
 @Injectable()
 export class PcsService {
   constructor(
     private prisma: PrismaService,
     private branchesService: BranchesService,
-    private readonly zonesService: ZonesService,
   ) {}
 
   create(createPcDto: CreatePcDto) {
@@ -74,7 +72,7 @@ export class PcsService {
     });
   }
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_HOUR)
   async fetchHostsForAllBranches() {
     const branches = await this.branchesService.findAll(1, 100);
     for (const branch of branches.items) {

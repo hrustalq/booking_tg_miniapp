@@ -51,7 +51,7 @@ export class BranchesController {
     description: 'Список филиалов успешно получен',
   })
   findAll(
-    @Query('page') page: string = '10',
+    @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
   ) {
     return this.branchService.findAll(+page, +limit);

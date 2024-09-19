@@ -88,4 +88,22 @@ export class PcsController {
   remove(@Param('id') id: string) {
     return this.pcsService.remove(+id);
   }
+
+  @Get('fetch-hosts')
+  @ApiOperation({ summary: 'Запустить задачу обновления списка компьютеров' })
+  @ApiResponse({ status: 200, description: 'Задача успешно запущена' })
+  @ApiResponse({ status: 500, description: 'Ошибка при выполнении задачи' })
+  async fetchHosts() {
+    try {
+      await this.pcsService.fetchHostsForAllBranches();
+      return {
+        message: 'Задача обновления списка компьютеров успешно выполнена',
+      };
+    } catch (error) {
+      return {
+        message: 'Произошла ошибка при выполнении задачи',
+        error: error.message,
+      };
+    }
+  }
 }

@@ -13,7 +13,12 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('openapi', app, document);
+
+  // Determine the base path based on the environment
+  const isProd = process.env.NODE_ENV === 'production';
+  const basePath = isProd ? 'api/openapi' : 'openapi';
+
+  SwaggerModule.setup(basePath, app, document);
 
   await app.listen(3000);
 }
