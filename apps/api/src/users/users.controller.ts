@@ -151,7 +151,7 @@ export class UsersController {
     return this.usersService.linkAccount(linkAccountDto);
   }
 
-  @Get('fill-database-from-gizmo')
+  @Post('fill-database-from-gizmo')
   @ApiOperation({ summary: 'Заполнить базу данных пользователями из Gizmo' })
   @ApiResponse({ status: 200, description: 'База данных успешно заполнена' })
   @ApiResponse({
@@ -169,7 +169,7 @@ export class UsersController {
     }
   }
 
-  @Get('update-user-balances')
+  @Post('update-user-balances')
   @ApiOperation({ summary: 'Обновить балансы пользователей' })
   @ApiResponse({
     status: 200,
@@ -186,5 +186,26 @@ export class UsersController {
     } catch (error) {
       throw new Error('Ошибка при обновлении балансов пользователей');
     }
+  }
+
+  @Get('linked-account/:telegramId')
+  @ApiOperation({
+    summary: 'Найти связанные аккаунты пользователя Gizmo по Telegram ID',
+  })
+  @ApiParam({
+    name: 'telegramId',
+    type: 'string',
+    description: 'Telegram ID пользователя',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Связанный пользователь Gizmo успешно найден',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Связанный пользователь Gizmo не найден',
+  })
+  findLinkedGizmoUser(@Param('telegramId') telegramId: string) {
+    return this.usersService.findLinkedGizmoUser(+telegramId);
   }
 }

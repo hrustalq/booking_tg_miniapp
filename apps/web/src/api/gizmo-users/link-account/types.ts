@@ -3,9 +3,9 @@ import { TelegramUser } from "@/api/telegram-users";
 export interface LinkAccountParams {
   gizmoAccountInternalId: number;
   branchId: string;
-  credentials: {
+  data: {
     username: string;
     password: string;
   };
-  data: Omit<TelegramUser, 'role' | 'gizmoProfile'>;
+  credentials: Omit<TelegramUser, 'role' | 'gizmoProfile'>;
 }

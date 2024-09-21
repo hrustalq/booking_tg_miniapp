@@ -74,46 +74,62 @@ export class ZonesService {
 
   @Cron(CronExpression.EVERY_HOUR)
   public async fillDatabaseFromBranches() {
-    // Метод для заполнения базы данных информацией о зонах из филиалов
-    try {
-      const branches = await this.branchesService.findAll(1, 100);
-      branches.items.forEach(async (branch) => {
+    const branches = await this.branchesService.findAll(1, 100);
+
+    await Promise.all(
+      branches.items.map(async (branch) => {
         const apiClient = this.branchesService.getApiClient(branch.id);
-        const params: {
-          'Pagination.Limit': 1000;
-        } = {
-          'Pagination.Limit': 1000,
-        };
+        const params = { 'Pagination.Limit': 1000 };
+
         const { data: response }: GetHostgroupsResponse = await apiClient.get(
           '/api/hostgroups',
           { params },
         );
-        response.result.forEach(async (hostgroup) => {
-          await this.prisma.zone.upsert({
-            where: {
-              internalId_branchId: {
-                branchId: branch.id,
-                internalId: hostgroup.id,
+
+        // Get all existing zones for this branch
+        const existingZones = await this.prisma.zone.findMany({
+          where: { branchId: branch.id },
+          select: { internalId: true },
+        });
+        const existingInternalIds = new Set(
+          existingZones.map((zone) => zone.internalId),
+        );
+
+        // Upsert zones from the response
+        await Promise.all(
+          response.result.map(async (hostgroup) => {
+            await this.prisma.zone.upsert({
+              where: {
+                internalId_branchId: {
+                  branchId: branch.id,
+                  internalId: hostgroup.id,
+                },
               },
-            },
-            update: {
+              update: {
+                name: hostgroup.name,
+                hourlyRate: 0,
+              },
+              create: {
+                internalId: hostgroup.id,
+                branchId: branch.id,
+                name: hostgroup.name,
+                hourlyRate: 0,
+              },
+            });
+            existingInternalIds.delete(hostgroup.id);
+          }),
+        );
+
+        // Delete zones that weren't in the response
+        if (existingInternalIds.size > 0) {
+          await this.prisma.zone.deleteMany({
+            where: {
               branchId: branch.id,
-              internalId: hostgroup.id,
-              name: hostgroup.name,
-              hourlyRate: 0,
-            },
-            create: {
-              internalId: hostgroup.id,
-              branchId: branch.id,
-              name: hostgroup.name,
-              hourlyRate: 0,
+              internalId: { in: Array.from(existingInternalIds) },
             },
           });
-        });
-      });
-    } catch (error) {
-      console.error('Ошибка при заполнении базы данных из филиалов:', error);
-      throw error; // Повторно выбрасываем ошибку для обработки в контроллере
-    }
+        }
+      }),
+    );
   }
 }

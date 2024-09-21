@@ -9,6 +9,8 @@ export interface GizmoUser {
   balance: number;
   phone: string;
 
+  internalId: number;
+
   branch?: Branch;
   branchId: string;
 

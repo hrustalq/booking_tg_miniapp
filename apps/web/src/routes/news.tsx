@@ -1,6 +1,5 @@
 import React from 'react';
 import { FaNewspaper } from 'react-icons/fa';
-import { useTheme } from '../hooks/use-theme';
 import { Card, CardContent } from '../components/ui/card';
 import { SubscribeNews } from '@/components/subscribe-news';
 
@@ -28,23 +27,9 @@ const NewsCard: React.FC<{ newsItem: NewsItem }> = ({ newsItem }) => (
 );
 
 const NewsPage: React.FC = () => {
-  const { theme } = useTheme();
-
-  const getThemeClasses = () => {
-    switch (theme) {
-      case 'dark':
-        return 'bg-gray-900 text-white';
-      case 'light':
-        return 'bg-white text-gray-900';
-      case 'system':
-        return 'bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white';
-      default:
-        return 'bg-white text-gray-900';
-    }
-  };
 
   return (
-    <div className={`mobile-layout ${getThemeClasses()}`}>
+    <div>
       <div className="flex items-center px-2 justify-between mb-6">
         <h1 className="text-3xl font-bold flex items-center">
           <FaNewspaper className="mr-2" />

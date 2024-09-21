@@ -19,4 +19,7 @@ export default {
   async linkAccount (params: LinkAccountParams) {
     return await import("./link-account").then((mod) => mod.default(params));
   },
+  async getLinkedAccount (telegramId: number) {
+    return await import("./get-linked-account").then((mod) => mod.default(telegramId));
+  },
 }

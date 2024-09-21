@@ -1,11 +1,11 @@
-import React, { ComponentProps, useState } from 'react'
+import React, { ComponentProps, useMemo, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "@/hooks/use-theme";
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { UserIcon, HistoryIcon, CreditCardIcon, SettingsIcon, LinkIcon, UserPlusIcon } from 'lucide-react';
+import { SettingsIcon, LinkIcon, UserPlusIcon, Users, UserIcon } from 'lucide-react';
 
 interface UserAvatarProps extends ComponentProps<"div"> {
   src?: string
@@ -15,7 +15,7 @@ interface UserAvatarProps extends ComponentProps<"div"> {
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback, size = 'md' }) => {
   const { theme } = useTheme()
-  const { user } = useAuth()
+  const { gizmoAccounts } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
   const sizeClasses = {
@@ -32,13 +32,14 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ className, src, fallback
 
   const avatarClass = `${sizeClasses[size]} ${themeClasses[theme as keyof typeof themeClasses] || themeClasses.system}`
 
-  const isAuthorized = user?.gizmoData !== null
+  const isAuthorized = useMemo(() => gizmoAccounts?.length > 0, [gizmoAccounts])
 
   const links = isAuthorized
     ? [
         { to: '/profile', label: 'Профиль', icon: <UserIcon size={18} /> },
-        { to: '/bookings', label: 'История бронирований', icon: <HistoryIcon size={18} /> },
-        { to: '/payments', label: 'История платежей', icon: <CreditCardIcon size={18} /> },
+        { to: '/accounts', label: 'Аккаунты', icon: <Users size={18} /> },
+        { to: '/link-account', label: 'Привязать аккаунт', icon: <LinkIcon size={18} /> },
+        { to: '/create-account', label: 'Создать аккаунт', icon: <UserPlusIcon size={18} /> },
         { to: '/settings', label: 'Настройки', icon: <SettingsIcon size={18} /> },
       ]
     : [

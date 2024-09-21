@@ -9,7 +9,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
-import { CreateBookingDto, UpdateBookingDto } from './booking.dto';
+import { CreateBookingDto } from './dto/create-booking.dto';
+import { UpdateBookingDto } from './dto/update-booking.dto';
 import {
   ApiTags,
   ApiOperation,
@@ -82,5 +83,38 @@ export class BookingsController {
   @ApiResponse({ status: 404, description: 'Бронирование не найдено' })
   remove(@Param('id') id: string) {
     return this.bookingsService.remove(id);
+  }
+
+  @Get('user/:userId')
+  @ApiOperation({ summary: 'Получить бронирования пользователя' })
+  @ApiParam({ name: 'userId', type: 'number', description: 'ID пользователя' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Номер страницы',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Количество элементов на странице',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Список бронирований пользователя успешно получен',
+  })
+  findByUserId(
+    @Param('userId') userId: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('gizmoAccountId') gizmoAccountId?: string,
+  ) {
+    return this.bookingsService.findByUserId(
+      +userId,
+      +page,
+      +limit,
+      gizmoAccountId ? +gizmoAccountId : undefined,
+    );
   }
 }

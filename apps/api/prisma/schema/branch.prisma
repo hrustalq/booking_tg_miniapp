@@ -16,6 +16,7 @@ model Branch {
 
   pc PC[]
   zones Zone[]
+  bookings Booking[]
 
   users GizmoUser[]
 

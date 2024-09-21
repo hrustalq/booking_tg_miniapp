@@ -8,6 +8,7 @@ import { Input } from "./input"
 type AutocompleteProps<T> = {
   options: T[]
   onSelect: (value: T) => void
+  initialValue?: T | null
   placeholder?: string
   emptyMessage?: string
   displayKey: keyof T
@@ -19,6 +20,7 @@ type AutocompleteProps<T> = {
 
 export function Autocomplete<T extends { [key: string]: any }>({
   options,
+  initialValue,
   onSelect,
   placeholder = "Search...",
   emptyMessage = "No results found.",
@@ -29,7 +31,7 @@ export function Autocomplete<T extends { [key: string]: any }>({
   isLoading = false, // New prop with default value
 }: AutocompleteProps<T>) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState<T | null>(null)
+  const [value, setValue] = React.useState<T | null>(initialValue ?? null)
   const [internalSearchTerm, setInternalSearchTerm] = React.useState("")
 
   // Use external searchTerm if provided, otherwise use internal state

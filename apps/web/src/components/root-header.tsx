@@ -4,12 +4,9 @@ import { BsSunFill, BsMoonFill } from "react-icons/bs";
 import { UserAvatar } from './user-avatar'
 import { LuUser } from 'react-icons/lu'
 import { cn } from '@/lib/utils'
+import BurgerMenu from './burger-menu';
 
-interface RootHeaderProps {
-  title: string
-}
-
-export const RootHeader: React.FC<RootHeaderProps> = ({ title }) => {
+export const RootHeader: React.FC = () => {
   const { theme, setTheme } = useTheme()
 
   const headerClass = cn(
@@ -20,7 +17,7 @@ export const RootHeader: React.FC<RootHeaderProps> = ({ title }) => {
   return (
     <header className={headerClass}>
       <div className="flex justify-between items-center w-full px-6">
-        <h1 className="text-xl font-bold">{title}</h1>
+        <BurgerMenu />
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}

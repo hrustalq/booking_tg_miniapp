@@ -2,9 +2,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { Navigate } from "react-router-dom";
 
 export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { gizmoAccounts } = useAuth();
   
-  if (!user?.gizmoData) {
+  if (!gizmoAccounts.length) {
     return <Navigate to="/unauthorized" replace />;
   }
   

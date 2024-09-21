@@ -95,7 +95,7 @@ export class ZoneController {
     return this.zonesService.remove(id);
   }
 
-  @Get('fill-zones')
+  @Post('fill-zones')
   @ApiOperation({
     summary:
       'Вручную выполнить заполнение базы данных по списку зон из филиалов',
@@ -106,11 +106,8 @@ export class ZoneController {
   })
   @ApiResponse({ status: 500, description: 'Внутренняя ошибка сервера' })
   async manualFillDatabase() {
-    try {
-      await this.zonesService.fillDatabaseFromBranches();
-      return { message: 'Заполнение базы данных успешно выполнено' };
-    } catch (error) {
-      throw new Error('Не удалось выполнить заполнение базы данных');
-    }
+    console.log('Заполнение базы данных по списку зон из филиалов');
+    await this.zonesService.fillDatabaseFromBranches();
+    return { message: 'Заполнение базы данных успешно выполнено' };
   }
 }

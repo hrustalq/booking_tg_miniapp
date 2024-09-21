@@ -10,7 +10,7 @@ import { Type } from 'class-transformer';
 import { TelegramUser } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-class Credentials {
+class LinkAccountData {
   @ApiProperty({ description: 'Имя пользователя для аутентификации' })
   @IsString()
   username: string;
@@ -20,8 +20,18 @@ class Credentials {
   password: string;
 }
 
+class LinkAccountParams {
+  @ApiProperty({ description: 'ID пользователя Gizmo' })
+  @IsNumber()
+  gizmoAccountInternalId: number;
+
+  @ApiProperty({ description: 'ID филиала' })
+  @IsString()
+  branchId: string;
+}
+
 // Create a class that represents the TelegramUser structure
-export class TelegramUserDto
+export class LinkAccountCredentials
   implements
     Partial<Omit<TelegramUser, 'role' | 'gizmoProfile'>>,
     Pick<TelegramUser, 'id'>
@@ -83,22 +93,19 @@ export class TelegramUserDto
 }
 
 export class LinkAccountDto {
-  @ApiProperty({ description: 'Внутренний ID аккаунта Gizmo' })
-  @IsNumber()
-  gizmoAccountInternalId: number;
-
-  @ApiProperty({ description: 'ID филиала' })
-  @IsString()
-  branchId: string;
+  @ApiProperty({ description: 'Параметры связи с аккаунтом' })
+  @ValidateNested()
+  @Type(() => LinkAccountParams)
+  params: LinkAccountParams;
 
   @ApiProperty({ description: 'Учетные данные пользователя' })
   @ValidateNested()
-  @Type(() => Credentials)
-  credentials: Credentials;
+  @Type(() => LinkAccountData)
+  data: LinkAccountData;
 
   @ApiProperty({ description: 'Данные пользователя Telegram' })
   @IsObject()
   @ValidateNested()
-  @Type(() => TelegramUserDto)
-  data: TelegramUserDto;
+  @Type(() => LinkAccountCredentials)
+  credentials: LinkAccountCredentials;
 }

@@ -1,10 +1,8 @@
-import { PaginationParams } from '..';
+import { PaginationParams } from '@/api';
 
+export * from './types';
 export default {
   async getBranches(params: PaginationParams) {
-    return await import('./get-branches').then(({ default: getBranches }) => getBranches(params));
-  },
-  async getBranch(id: string) {
-    return await import('./get-branch').then(({ default: getBranch }) => getBranch(id));
+    return await import('./get-branches').then(mod => mod.default(params));
   },
 };

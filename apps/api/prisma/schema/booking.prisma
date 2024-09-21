@@ -1,19 +1,22 @@
 model Booking {
   id        String        @id @default(cuid())
 
-  userId    Int?          @unique
-  user      TelegramUser? @relation(fields: [userId], references: [id])
+  userId    Int     
+  user      TelegramUser @relation(fields: [userId], references: [id])
+
+  gizmoAccountId Int
+  gizmoAccount GizmoUser @relation(fields: [gizmoAccountId], references: [id])
 
   pcId      Int
   pc        PC            @relation(fields: [pcId], references: [id])
 
-  startTime DateTime
-  endTime   DateTime
+  branchId  String
+  branch    Branch       @relation(fields: [branchId], references: [id])
+
+  startTime DateTime     @default(now())
+  endTime   DateTime?
   
   status    BookingStatus @default(PENDING)
-
-  paymentId String?       @unique
-  payment   Payment?      @relation(fields: [paymentId], references: [id])
   
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt

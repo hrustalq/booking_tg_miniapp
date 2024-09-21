@@ -7,8 +7,11 @@ import NotFoundPage from "./not-found";
 import { AuthWrapper } from "./components/auth-wrapper";
 import NewsPage from "./routes/news";
 import LinkAccountPage from "./routes/link-account";
-import BookingPage from "./routes/booking";
+import CreateBookingPage from "./routes/create-booking";
+import BookingListPage from "./routes/booking-list";
 import CreateAccountPage from "./routes/create-account";
+import ProfilePage from "./routes/profile";
+import GizmoAccountPage from "./routes/gizmo-account";
 
 const router = createBrowserRouter([
   {
@@ -20,33 +23,50 @@ const router = createBrowserRouter([
         element: <RootPage />,
       },
       {
-        path: "unauthorized",
-        element: <UnauthorizedPage />,
+        path: "create-account",
+        element: <CreateAccountPage />,
       },
       {
         path: "notifications",
         element: <AuthWrapper><NotificationsPage /></AuthWrapper>
       },
       {
-        path: "news",
-        element: <NewsPage />,
+        path: "unauthorized",
+        element: <UnauthorizedPage />,
       },
       {
         path: "link-account",
         element: <LinkAccountPage />,
       },
       {
-        path: "create-account",
-        element: <CreateAccountPage />,
+        path: "news",
+        element: <NewsPage />,
       },
       {
         path: "booking",
-        element: <BookingPage />,
+        children: [
+          {
+            index: true,
+            element: <CreateBookingPage />,
+          },
+          {
+            path: "list-bookings",
+            element: <BookingListPage />,
+          },
+        ],
+      },
+      {
+        path: "profile",
+        element: <AuthWrapper><ProfilePage /></AuthWrapper>,
+      },
+      {
+        path: "profile/:accountId",
+        element: <AuthWrapper><GizmoAccountPage /></AuthWrapper>,
       },
       {
         path: "*",
         element: <NotFoundPage />,
-      }
+      },
     ],
   },
 ]);

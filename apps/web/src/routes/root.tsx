@@ -1,19 +1,291 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useInView } from 'framer-motion';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
-import { FaDesktop, FaKeyboard, FaMouse, FaHeadphones, FaChair, FaPhone, FaMapMarkerAlt, FaUsers, FaCalendarAlt } from 'react-icons/fa';
+import { FaDesktop, FaKeyboard, FaMouse, FaHeadphones, FaChair, FaPhone, FaMapMarkerAlt, FaUsers, FaCalendarAlt, FaClock, FaGamepad, FaMoneyBillWave } from 'react-icons/fa';
 import { MdMonitor } from 'react-icons/md';
 import { GiProcessor } from 'react-icons/gi';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { FaMemory } from "react-icons/fa";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Separator } from '../components/ui/separator';
+import { ScrollArea } from '../components/ui/scroll-area';
 
-const PriceCard: React.FC<{ title: string; price: string; description: string }> = ({ title, price, description }) => (
-  <Card className="w-full">
+// Статические данные
+const clubs = [
+  {
+    name: "Bananagun на Гамидова",
+    address: "г. Махачкала, ул. Гамидова, 55б. 3 этаж",
+    phone: "+7‒938‒782-66-69",
+    capacity: "40 мест",
+    workingHours: "Круглосуточно",
+    zones: [
+      {
+        name: "Purple",
+        description: "Общий зал для всех геймеров",
+        pricing: [
+          { duration: "1 час", price: "120 ₽" },
+          { duration: "3 часа", price: "300 ₽" },
+          { duration: "3 + 1", price: "360 ₽" },
+          { duration: "5 часов", price: "450 ₽" },
+          { duration: "Вся ночь", price: "600 ₽" },
+        ],
+        hardware: [
+          { icon: <FaMouse />, name: "Мышь", description: "Logitech G102" },
+          { icon: <FaKeyboard />, name: "Клавиатура", description: "Red Square Keyrox TKL" },
+          { icon: <FaHeadphones />, name: "Наушники", description: "HyperX Cloud Alpha S" },
+          { icon: <FaChair />, name: "Коврик", description: "Bananagun (кастом)" },
+          { icon: <MdMonitor />, name: "Монитор", description: "165 Гц 2K 27\"" },
+          { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 3060 Ti" },
+          { icon: <FaDesktop />, name: "Процессор", description: "Intel Core i5-12400F" },
+          { icon: <FaMemory />, name: "Оперативная память", description: "16 GB DDR4 4200MHz" },
+        ],
+      },
+      {
+        name: "Banana",
+        description: "Средний зал с улучшенным комфо��том",
+        pricing: [
+          { duration: "1 час", price: "120 ₽" },
+          { duration: "3 часа", price: "300 ₽" },
+          { duration: "3 + 1", price: "360 ₽" },
+          { duration: "5 часов", price: "450 ₽" },
+          { duration: "Вся ночь", price: "600 ₽" },
+        ],
+        hardware: [
+          { icon: <FaMouse />, name: "Мышь", description: "VGN F1 Pro Max" },
+          { icon: <FaKeyboard />, name: "Клавиатура", description: "Red Square Keyrox TKL" },
+          { icon: <FaHeadphones />, name: "Наушники", description: "HyperX Cloud Alpha S" },
+          { icon: <FaChair />, name: "Коврик", description: "Bananagun (кастом)" },
+          { icon: <MdMonitor />, name: "Монитор", description: "240 Гц 2K 27\"" },
+          { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 3070" },
+          { icon: <FaDesktop />, name: "Процессор", description: "Intel Core i5-12400F" },
+          { icon: <FaMemory />, name: "Оперативная память", description: "16 GB DDR4 4200MHz" },
+        ],
+      },
+      {
+        name: "Aqua/Jungle",
+        description: "VIP-зоны для максимального погружения",
+        pricing: [
+          { duration: "1 час", price: "200 ₽" },
+          { duration: "3 часа", price: "550 ₽" },
+          { duration: "3 + 1", price: "700 ₽" },
+          { duration: "5 часов", price: "850 ₽" },
+          { duration: "Вся ночь", price: "800 ₽" },
+          { duration: "Утро (8:00 - 13:00)", price: "300 ₽" },
+        ],
+        hardware: [
+          { icon: <FaMouse />, name: "Мышь", description: "VGN F1 Pro Max" },
+          { icon: <FaKeyboard />, name: "Клавиатура", description: "Dark Project KD 83A" },
+          { icon: <FaHeadphones />, name: "Наушники", description: "HyperX Cloud 3" },
+          { icon: <FaChair />, name: "Коврик", description: "Bananagun (кастом)" },
+          { icon: <MdMonitor />, name: "Монитор", description: "240 Гц 2K 27\"" },
+          { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 4070 Super" },
+          { icon: <FaDesktop />, name: "Процессор", description: "AMD Ryzen 7 5700X3D" },
+          { icon: <FaMemory />, name: "Оперативная память", description: "32 GB DDR5 5700MHz" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Bananagun в ТЦ Вега",
+    address: "ул. Ленина, 82. Торговый центр Вега",
+    phone: "+7‒938‒782-66-69",
+    capacity: "40 мест",
+    workingHours: "Круглосуточно",
+    zones: [
+      {
+        name: "Purple",
+        description: "Общий зал для всех геймеров",
+        pricing: [
+          { duration: "1 час", price: "120 ₽" },
+          { duration: "3 часа", price: "300 ₽" },
+          { duration: "3 + 1", price: "360 ₽" },
+          { duration: "5 часов", price: "450 ₽" },
+          { duration: "Вся ночь", price: "600 ₽" },
+        ],
+        hardware: [
+          { icon: <FaMouse />, name: "Мышь", description: "MCHOSE G3" },
+          { icon: <FaKeyboard />, name: "Клавиатура", description: "Dark Project KD1 Арена" },
+          { icon: <FaHeadphones />, name: "Наушники", description: "Dark Project HS1 Арена" },
+          { icon: <FaChair />, name: "Коврик", description: "Bananagun" },
+          { icon: <MdMonitor />, name: "Монитор", description: "180Hz 2K 27\"" },
+          { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 4060 Ti" },
+          { icon: <FaDesktop />, name: "Процессор", description: "Intel Core i5-12600KF" },
+          { icon: <FaMemory />, name: "Оперативная память", description: "32 GB DDR5 6400MHz" },
+        ],
+      },
+      {
+        name: "Banana",
+        description: "Средний зал с улучшенным комфортом",
+        pricing: [
+          { duration: "1 час", price: "120 ₽" },
+          { duration: "3 часа", price: "300 ₽" },
+          { duration: "3 + 1", price: "360 ₽" },
+          { duration: "5 часов", price: "450 ₽" },
+          { duration: "Вся ночь", price: "600 ₽" },
+        ],
+        hardware: [
+          { icon: <FaMouse />, name: "Мышь", description: "VXE R1 Pro Max" },
+          { icon: <FaKeyboard />, name: "Клавиатура", description: "Dark Project KD1 Арена" },
+          { icon: <FaHeadphones />, name: "Наушники", description: "Dark Project HS1 Арена" },
+          { icon: <FaChair />, name: "Коврик", description: "Bananagun" },
+          { icon: <MdMonitor />, name: "Монитор", description: "360Hz FullHD 24\"" },
+          { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 4070 Super" },
+          { icon: <FaDesktop />, name: "Процессор", description: "Intel Core i5-13600KF" },
+          { icon: <FaMemory />, name: "Оперативная память", description: "32 GB DDR5 6400MHz" },
+        ],
+      },
+      {
+        name: "Aqua/Jungle",
+        description: "VIP-оны для максимального погружения",
+        pricing: [
+          { duration: "1 час", price: "200 ₽" },
+          { duration: "3 часа", price: "550 ₽" },
+          { duration: "3 + 1", price: "700 ₽" },
+          { duration: "5 часов", price: "850 ₽" },
+          { duration: "Вся ночь", price: "800 ₽" },
+          { duration: "Утро (8:00 - 13:00)", price: "300 ₽" },
+        ],
+        hardware: [
+          { icon: <FaMouse />, name: "Мышь", description: "VXE R1 Pro Max" },
+          { icon: <FaKeyboard />, name: "Клавиатура", description: "Dark Project Zeno" },
+          { icon: <FaHeadphones />, name: "Наушники", description: "Dark Project HS1 Арена" },
+          { icon: <FaChair />, name: "Коврик", description: "Bananagun" },
+          { icon: <MdMonitor />, name: "Монитор", description: "380Hz 2K 27\"" },
+          { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 4070 Super" },
+          { icon: <FaDesktop />, name: "Процессор", description: "Intel Core i5-13600KF" },
+          { icon: <FaMemory />, name: "Оперативная память", description: "32 GB DDR5 6400MHz" },
+        ],
+      },
+    ],
+  },
+];
+
+const ClubCard: React.FC<{ 
+  name: string; 
+  address: string; 
+  phone: string; 
+  capacity: string; 
+  workingHours: string;
+  zones: {
+    name: string;
+    description: string;
+    pricing: { duration: string; price: string }[];
+    hardware: { icon: React.ReactNode; name: string; description: string }[];
+  }[];
+}> = ({ name, address, phone, capacity, workingHours, zones }) => (
+  <>
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle>{name}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-[auto,1fr] gap-4">
+          <FaMapMarkerAlt className="size-7 my-auto text-blue-500" />
+          <a href={`https://2gis.ru/search/${encodeURIComponent(address)}`} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
+            {address}
+          </a>
+          <FaPhone className="size-6 my-auto text-blue-500" />
+          <a href={`tel:${phone.replace(/\D/g,'')}`} className="text-blue-500 hover:underline">
+            {phone}
+          </a>
+          <FaUsers className="size-6 my-auto text-blue-500" />
+          <span>{capacity}</span>
+          <FaClock className="size-6 my-auto text-blue-500" />
+          <span>{workingHours}</span>
+        </CardContent>
+      </Card>
+    </motion.div>
+    
+    <Separator className="my-6" />
+    
+    <section className="my-6">
+      <motion.h3 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
+        className="text-2xl font-semibold mb-4 text-center flex items-center justify-center"
+      >
+        <FaGamepad className="mr-2" />
+        Игровые зоны
+      </motion.h3>
+      {zones.map((zone) => (
+        <ZoneInfo 
+          key={zone.name}
+          name={zone.name}
+          description={zone.description}
+          pricing={zone.pricing}
+          hardware={zone.hardware}
+        />
+      ))}
+    </section>
+  </>
+);
+
+const ZoneInfo: React.FC<{ 
+  name: string; 
+  description: string; 
+  pricing: { duration: string; price: string }[];
+  hardware: { icon: React.ReactNode; name: string; description: string }[];
+}> = ({ name, description, pricing, hardware }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -50 }}
+      animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-xl">{name}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="pricing">
+            <TabsList>
+              <TabsTrigger value="pricing">
+                <FaMoneyBillWave className="mr-2" />
+                Тарифы
+              </TabsTrigger>
+              <TabsTrigger value="hardware">
+                <FaDesktop className="mr-2" />
+                Оборудование
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="pricing">
+              <PricingInfo prices={pricing} />
+            </TabsContent>
+            <TabsContent value="hardware">
+              <HardwareInfo specs={hardware} />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+const PricingInfo: React.FC<{ prices: { duration: string; price: string }[] }> = ({ prices }) => (
+  <Card>
     <CardHeader>
-      <CardTitle className="text-lg font-bold">{title}</CardTitle>
+      <CardTitle>Тарифы</CardTitle>
     </CardHeader>
     <CardContent>
-      <p className="text-2xl font-bold mb-2">{price}</p>
-      <p className="text-sm text-gray-600">{description}</p>
+      <ul className="space-y-2">
+        {prices.map((price, index) => (
+          <li key={index} className="flex border-b pb-2 last-of-type:pb-0 last-of-type:border-b-0 justify-between">
+            <span>{price.duration}</span>
+            <span className="font-semibold">{price.price}</span>
+          </li>
+        ))}
+      </ul>
     </CardContent>
   </Card>
 );
@@ -21,190 +293,98 @@ const PriceCard: React.FC<{ title: string; price: string; description: string }>
 const HardwareInfo: React.FC<{ specs: { icon: React.ReactNode; name: string; description: string }[] }> = ({ specs }) => (
   <Card>
     <CardContent className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {specs.map((spec, index) => (
-          <div key={index} className="flex items-center space-x-4">
-            <div className="text-3xl text-blue-500">{spec.icon}</div>
-            <div>
-              <h4 className="font-semibold">{spec.name}</h4>
-              <p className="text-sm text-gray-600">{spec.description}</p>
+      <ScrollArea className="h-[300px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {specs.map((spec, index) => (
+            <div key={index} className="flex items-center space-x-4">
+              <div className="text-3xl text-blue-500">{spec.icon}</div>
+              <div>
+                <h4 className="font-semibold">{spec.name}</h4>
+                <p className="text-sm text-gray-600">{spec.description}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </ScrollArea>
     </CardContent>
   </Card>
 );
 
 const RootPage: React.FC = () => {
-  const club1Prices = [
-    { title: "Стандарт", price: "от 100 ₽/час", description: "Будни: 100 ₽/час, Выходные: 120 ₽/час" },
-    { title: "VIP", price: "от 150 ₽/час", description: "Будни: 150 ₽/час, Выходные: 180 ₽/час" },
-    { title: "Турнирная", price: "от 200 ₽/час", description: "Будни: 200 ₽/час, Выходные: 250 ₽/час" },
-    { title: "Ночной пакет", price: "500 ₽", description: "С 22:00 до 06:00, безлимитное время" },
-  ];
-
-  const club2Prices = [
-    { title: "Стандарт", price: "от 90 ₽/час", description: "Будни: 90 ₽/час, Выходные: 110 ₽/час" },
-    { title: "Премиум", price: "от 130 /чс", description: "Будни: 130 ₽/час, Выходные: 160 ₽/час" },
-    { title: "Дневной пакет", price: "400 ₽", description: "С 10:00 до 18:00, безлимитное время" },
-  ];
-
-  const club1Specs = [
-    { icon: <FaDesktop />, name: "Процессор", description: "Intel Core i9-11900K" },
-    { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 3080" },
-    { icon: <MdMonitor />, name: "Монитор", description: "27\" 240Hz ASUS ROG Swift" },
-    { icon: <FaKeyboard />, name: "Клавиатура", description: "Razer Huntsman Elite" },
-    { icon: <FaMouse />, name: "Мышь", description: "Logitech G Pro X Superlight" },
-    { icon: <FaHeadphones />, name: "Наушники", description: "HyperX Cloud II" },
-    { icon: <FaChair />, name: "Кресло", description: "DXRacer Formula Series" },
-  ];
-
-  const club2Specs = [
-    { icon: <FaDesktop />, name: "Процессор", description: "AMD Ryzen 7 5800X" },
-    { icon: <GiProcessor />, name: "Видеокарта", description: "NVIDIA GeForce RTX 3070" },
-    { icon: <MdMonitor />, name: "Монитор", description: "24\" 165Hz BenQ ZOWIE" },
-    { icon: <FaKeyboard />, name: "Клавиатура", description: "SteelSeries Apex Pro" },
-    { icon: <FaMouse />, name: "Мышь", description: "Zowie EC2" },
-    { icon: <FaHeadphones />, name: "Наушники", description: "SteelSeries Arctis Pro" },
-    { icon: <FaChair />, name: "Кресло", description: "Secretlab TITAN Evo 2022" },
-  ];
-
   return (
-    <div className="flex flex-col">
-      <h1 className="text-3xl font-bold mb-4 text-center">Сеть компьютерных клубов Bananagun</h1>
-      <p className="text-center mb-4 text-lg text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col max-w-6xl"
+    >
+      <motion.h1 
+        initial={{ y: -50 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100 }}
+        className="text-4xl font-bold mb-4 text-center flex items-center justify-center"
+      >
+        Сеть компьютерных клубов Bananagun
+      </motion.h1>
+      <motion.p 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="text-center mb-8 text-lg text-gray-600 dark:text-gray-300"
+      >
         Современное оборудование • Комфортная атмосфера • Гибкие тарифы
-      </p>
+      </motion.p>
       
-      <div className="text-center mb-8">
-        <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
-          <FaCalendarAlt className="mr-2" />
-          Забронировать
-        </Link>
-      </div>
+      <motion.div 
+        initial={{ scale: 0.8 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
+        className="text-center mb-8"
+      >
+        <Button asChild size="lg">
+          <Link to="/booking">
+            <FaCalendarAlt className="mr-2" />
+            Забронировать
+          </Link>
+        </Button>
+      </motion.div>
       
-      <Tabs defaultValue="club1">
-        <TabsList className="mb-8 flex justify-center">
-          <TabsTrigger value="club1" className="px-5 py-3 text-base">Кибер Арена</TabsTrigger>
-          <TabsTrigger value="club2" className="px-5 py-3 text-base">Геймер</TabsTrigger>
+      <Tabs defaultValue={clubs[0].name}>
+        <TabsList className="flex justify-center">
+          {clubs.map((club, index) => (
+            <motion.div
+              key={club.name}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * index }}
+            >
+              <TabsTrigger value={club.name}>
+                {club.name}
+              </TabsTrigger>
+            </motion.div>
+          ))}
         </TabsList>
-        <TabsContent value="club1">
-          <section className="mb-6">
-            <h2 className="text-2xl font-semibold mb-6 text-center">Компьютерный клуб "Кибер Арена"</h2>
-            <Card>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-[auto,1fr] gap-4 mb-6">
-                  <FaMapMarkerAlt className="text-2xl text-blue-500" />
-                  <a href="https://2gis.ru/search/ул.%20Пушкина%2C%20д.%2010" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                    ул. Пушкина, д. 10
-                  </a>
-                  <FaPhone className="text-2xl text-blue-500" />
-                  <a href="tel:+71234567890" className="text-blue-500 hover:underline">
-                    +7 (123) 456-78-90
-                  </a>
-                  <FaUsers className="text-2xl text-blue-500" />
-                  <span>50 мест</span>
-                </div>
-                <div className="mt-4">
-                  <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">Зоны:</h4>
-                  <ul className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <li className="text-sm">Стандарт (30 мест)</li>
-                    <li className="text-sm">VIP (15 мест)</li>
-                    <li className="text-sm">Турнирная (5 мест)</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-          
-          <section className="mb-6">
-            <h3 className="text-xl font-semibold mb-6 text-center">Цены и акции</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {club1Prices.map((price, index) => (
-                <PriceCard key={index} {...price} />
-              ))}
-            </div>
-          </section>
-          
-          <section>
-            <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
-            <Tabs defaultValue="standard">
-              <TabsList className="mb-6 flex justify-center">
-                <TabsTrigger value="standard" className="px-5 py-3 text-base">Стандарт</TabsTrigger>
-                <TabsTrigger value="vip" className="px-5 py-3 text-base">VIP</TabsTrigger>
-              </TabsList>
-              <TabsContent value="standard">
-                <HardwareInfo specs={club1Specs} />
-              </TabsContent>
-              <TabsContent value="vip">
-                <HardwareInfo specs={club1Specs.map(spec => ({ ...spec, description: `VIP ${spec.description}` }))} />
-              </TabsContent>
-            </Tabs>
-          </section>
-        </TabsContent>
-        <TabsContent value="club2">
-          <section className="mb-6">
-            <h2 className="text-2xl font-semibold mb-6 text-center">Компьютерный клуб "Геймер"</h2>
-            <Card>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-[auto,1fr] gap-4 mb-6">
-                  <FaMapMarkerAlt className="text-2xl text-blue-500" />
-                  <a href="https://2gis.ru/search/пр.%20Ленина%2C%20д.%2015" className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                    пр. Ленина, д. 15
-                  </a>
-                  <FaPhone className="text-2xl text-blue-500" />
-                  <a href="tel:+79876543210" className="text-blue-500 hover:underline">
-                    +7 (987) 654-32-10
-                  </a>
-                  <FaUsers className="text-2xl text-blue-500" />
-                  <span>30 мест</span>
-                </div>
-                <div className="mt-4">
-                  <h4 className="font-semibold mb-2 text-blue-600 dark:text-blue-400">Зоны:</h4>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <li className="text-sm">Стандарт (20 мест)</li>
-                    <li className="text-sm">Премиум (10 мест)</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-          
-          <section className="mb-6">
-            <h3 className="text-xl font-semibold mb-6 text-center">Цены и акции</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {club2Prices.map((price, index) => (
-                <PriceCard key={index} {...price} />
-              ))}
-            </div>
-          </section>
-          
-          <section>
-            <h3 className="text-xl font-semibold mb-6 text-center">Оборудование</h3>
-            <Tabs defaultValue="standard">
-              <TabsList className="mb-6 flex justify-center">
-                <TabsTrigger value="standard" className="px-6 py-3 text-lg">Стандарт</TabsTrigger>
-                <TabsTrigger value="premium" className="px-6 py-3 text-lg">Премиум</TabsTrigger>
-              </TabsList>
-              <TabsContent value="standard">
-                <HardwareInfo specs={club2Specs} />
-              </TabsContent>
-              <TabsContent value="premium">
-                <HardwareInfo specs={club2Specs.map(spec => ({ ...spec, description: `Премиум ${spec.description}` }))} />
-              </TabsContent>
-            </Tabs>
-          </section>
-        </TabsContent>
+        {clubs.map((club) => (
+          <TabsContent key={club.name} value={club.name}>
+            <ClubCard {...club} />
+          </TabsContent>
+        ))}
       </Tabs>
       
-      <div className="text-center mt-6">
-        <Link to="/booking" className="inline-flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors text-base font-semibold shadow-md hover:shadow-lg">
-          <FaCalendarAlt className="mr-2" />
-          Забронировать
-        </Link>
-      </div>
-    </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+        className="text-center mt-12"
+      >
+        <Button asChild size="lg">
+          <Link to="/booking">
+            <FaClock className="mr-2" />
+            Забронировать время
+          </Link>
+        </Button>
+      </motion.div>
+    </motion.div>
   );
 };
 

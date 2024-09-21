@@ -12,11 +12,13 @@ model GizmoUser {
   branch Branch? @relation(fields: [branchId], references: [id])
   branchId String?
 
+  bookings Booking[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   telegramUser   TelegramUser? @relation(fields: [telegramUserId], references: [id])       
-  telegramUserId Int? @unique
+  telegramUserId Int?
 
   @@index([telegramUserId])
   @@unique([branchId, internalId])

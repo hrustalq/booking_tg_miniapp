@@ -15,8 +15,6 @@ model Payment {
   receiver TelegramUser @relation("ReceiverPayment", fields: [receiverId], references: [id])
   receiverId Int
 
-  booking Booking?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

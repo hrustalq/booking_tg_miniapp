@@ -1,6 +1,6 @@
 import { PaginationParams } from "../../types";
 
 export interface GetPcsParams extends Partial<PaginationParams> {
-  zoneId: number;
+  zoneId: string;
   branchId: string;
 }

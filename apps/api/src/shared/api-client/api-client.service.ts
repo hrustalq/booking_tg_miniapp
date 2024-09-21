@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axiosRetry from 'axios-retry';
 
 @Injectable()
 export class ApiClientService {
@@ -14,8 +15,14 @@ export class ApiClientService {
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
       ...config,
+    });
+
+    axiosRetry(this.client, {
+      retries: 3,
+      retryDelay: axiosRetry.exponentialDelay,
     });
   }
 

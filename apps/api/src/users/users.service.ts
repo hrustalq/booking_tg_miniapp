@@ -118,6 +118,7 @@ export class UsersService {
         const apiClient = this.branchesService.getApiClient(branch.id);
         const gizmoUsers = await this.prisma.gizmoUser.findMany({
           where: { branchId: branch.id },
+          select: { internalId: true },
         });
 
         for (const user of gizmoUsers) {
@@ -158,6 +159,7 @@ export class UsersService {
         id: true,
         guid: true,
         username: true,
+        internalId: true,
         balance: true,
         branchId: true,
         phone: true,
@@ -200,14 +202,13 @@ export class UsersService {
   }
 
   async linkAccount(linkAccountDto: LinkAccountDto) {
-    const { gizmoAccountInternalId, branchId, credentials, data } =
-      linkAccountDto;
+    const { params, credentials, data } = linkAccountDto;
 
     // Validate Gizmo user
     const isValid = await this.validateGizmoUser({
-      login: credentials.username,
-      password: credentials.password,
-      branchId,
+      login: data.username,
+      password: data.password,
+      branchId: params.branchId,
     });
 
     if (!isValid) {
@@ -216,12 +217,12 @@ export class UsersService {
 
     // Find or create TelegramUser
     const telegramUserData = await this.prisma.telegramUser.upsert({
-      where: { id: data.id },
+      where: { id: credentials.id },
       update: {
-        ...data,
+        ...credentials,
       },
       create: {
-        ...data,
+        ...credentials,
       },
     });
 
@@ -229,8 +230,8 @@ export class UsersService {
     const gizmoUser = await this.prisma.gizmoUser.findUnique({
       where: {
         branchId_internalId: {
-          branchId,
-          internalId: gizmoAccountInternalId,
+          branchId: params.branchId,
+          internalId: params.gizmoAccountInternalId,
         },
       },
     });
@@ -248,5 +249,21 @@ export class UsersService {
     });
 
     return updatedGizmoUser;
+  }
+
+  async findLinkedGizmoUser(telegramUserId: number) {
+    const gizmoUser = await this.prisma.gizmoUser.findMany({
+      where: { telegramUserId },
+      select: {
+        id: true,
+        guid: true,
+        username: true,
+        internalId: true,
+        balance: true,
+        branchId: true,
+        phone: true,
+      },
+    });
+    return gizmoUser;
   }
 }

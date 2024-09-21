@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,8 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { branchesApi, PaginatedResponse, PaginationParams, gizmoUsersApi } from '@/api';
+import { useQuery } from '@tanstack/react-query';
 import { Branch } from '@/api/branches/types';
 import { Autocomplete } from '@/components/ui/autocomplete';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +18,8 @@ import { GizmoUser } from '@/api/gizmo-users/types';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { useBranchesQuery } from '@/queries/useBranchesQueries';
+import { gizmoUsersApi } from '@/api';
 
 const linkAccountSchema = z.object({
   login: z.string().min(3, 'Логин должен содержать не менее 3 символов'),
@@ -47,35 +48,13 @@ const LinkAccountPage: React.FC = () => {
     mode: 'onBlur',
   });
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isLoading,
-  } = useInfiniteQuery<PaginatedResponse<Branch>, Error>({
-    queryKey: ['branches'],
-    queryFn: ({ pageParam }) => branchesApi.getBranches(pageParam as PaginationParams),
-    initialPageParam: {
-      page: 1,
-      limit: 10,
-    },
-    getNextPageParam: (lastPage) => lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
-  });
+  const { data: branches, isLoading: isBranchesLoading } = useBranchesQuery();
 
   const { data: users, isLoading: isUsersLoading } = useQuery<GizmoUser[]>({
     queryKey: ['gizmoUsers', searchTerm],
     queryFn: () => gizmoUsersApi.getGizmoUserSearch({ query: searchTerm, branchId: selectedClub!.id }),
     enabled: searchTerm?.length > 2,
   });
-
-  const branches = data?.pages.flatMap(page => page.items) ?? [];
-
-  const handleLoadMore = useCallback(() => {
-    if (hasNextPage && !isFetching) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetching, fetchNextPage]);
 
   const pageVariants: Record<string, Variant> = {
     enter: (direction: 'forward' | 'backward') => ({
@@ -108,20 +87,31 @@ const LinkAccountPage: React.FC = () => {
       } else if (step === 3) {
         isValid = await form.trigger('password', { shouldFocus: true });
         if (isValid) {
-          console.log(auth.user);
-          if (!auth.user?.telegramData) {
+          if (!auth?.telegramUser) {
             setLinkError('Не удалось получить данные из Telegram');
             return;
           }
           setIsLinking(true);
           try {
-            await gizmoUsersApi.linkAccount({
+            console.log('Привязка аккаунта:', {
               gizmoAccountInternalId: selectedUser!.id,
               branchId: selectedClub!.id,
               data: {
-                ...auth.user.telegramData,
+                ...auth.telegramUser,
               },
               credentials: {
+                username: form.getValues('login'),
+                password: form.getValues('password'),
+              }
+            });
+            await gizmoUsersApi.linkAccount({
+              gizmoAccountInternalId: selectedUser!.internalId,
+              branchId: selectedClub!.id,
+              credentials: {
+                ...auth.telegramUser,
+                id: auth.telegramUser!.id,
+              },
+              data: {
                 username: form.getValues('login'),
                 password: form.getValues('password'),
               },
@@ -167,7 +157,7 @@ const LinkAccountPage: React.FC = () => {
       content: (
         <div className="flex flex-col h-full">
           <Autocomplete
-            options={branches}
+            options={branches || []}
             onSelect={(branch) => setSelectedClub(branch)}
             placeholder="Поиск по названию клуба"
             emptyMessage="Клубы не найдены"
@@ -175,11 +165,11 @@ const LinkAccountPage: React.FC = () => {
             className="mb-4"
           />
           <ScrollArea className="flex-grow">
-            {isLoading ? (
+            {isBranchesLoading ? (
               Array.from({ length: 3 }).map((_, index) => (
                 <ClubSkeleton key={index} />
               ))
-            ) : branches.length > 0 ? (
+            ) : branches && branches.length > 0 ? (
               branches.map((branch) => (
                 <Card
                   key={branch.id}
@@ -226,11 +216,6 @@ const LinkAccountPage: React.FC = () => {
                 icon={<MapPin className="w-16 h-16" />}
                 message="Клубы не найдены"
               />
-            )}
-            {hasNextPage && (
-              <Button onClick={handleLoadMore} disabled={isFetching}>
-                {isFetching ? 'Загрузка...' : 'Загрузить еще'}
-              </Button>
             )}
           </ScrollArea>
         </div>
@@ -406,7 +391,7 @@ const LinkAccountPage: React.FC = () => {
         </Form>
       </div>
       <div className="mt-6 text-center text-sm text-gray-500">
-        Нет аккаунта? <a href="/register" className="text-blue-500 hover:underline">Создать новый аккаунт</a>
+        Нет аккаунта? <a href="/create-account" className="text-blue-500 hover:underline">Создать новый аккаунт</a>
       </div>
     </div>
   );

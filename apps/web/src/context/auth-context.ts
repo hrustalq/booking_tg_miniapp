@@ -1,13 +1,20 @@
 import { createContext } from "react";
-import type { User } from "../providers/auth-provider";
+import type { TelegramUser } from "../api/telegram-users/types";
+import type { GizmoUser } from "../api/gizmo-users/types";
 
 interface AuthContextType {
-  user: User | null;
+  telegramUser: TelegramUser | null;
+  gizmoAccounts: GizmoUser[];
+  isLoadingGizmoAccounts: boolean;
+  gizmoAccountsError: unknown;
   authenticate: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  user: null,
+  telegramUser: null,
+  gizmoAccounts: [],
+  isLoadingGizmoAccounts: false,
+  gizmoAccountsError: null,
   authenticate: () => {},
 });
 

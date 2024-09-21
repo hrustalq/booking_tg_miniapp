@@ -89,7 +89,7 @@ export class PcsController {
     return this.pcsService.remove(+id);
   }
 
-  @Get('fetch-hosts')
+  @Post('fetch-hosts')
   @ApiOperation({ summary: 'Запустить задачу обновления списка компьютеров' })
   @ApiResponse({ status: 200, description: 'Задача успешно запущена' })
   @ApiResponse({ status: 500, description: 'Ошибка при выполнении задачи' })

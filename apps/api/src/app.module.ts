@@ -10,6 +10,9 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ApiClientModule } from './shared/api-client/api-client.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CacheModule } from '@nestjs/cache-manager';
+import { BillingProfilesModule } from './billing-profiles/billing-profiles.module';
+import { UserGroupsModule } from './usergroups/usergroups.module';
 
 @Module({
   imports: [
@@ -23,7 +26,12 @@ import { ScheduleModule } from '@nestjs/schedule';
     NotificationsModule,
     PaymentsModule,
     ApiClientModule,
+    BillingProfilesModule,
     ScheduleModule.forRoot(),
+    CacheModule.register({
+      isGlobal: true,
+    }),
+    UserGroupsModule,
   ],
 })
 export class AppModule {}
