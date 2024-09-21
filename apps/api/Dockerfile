@@ -28,4 +28,5 @@ RUN npx turbo run build --filter api
 FROM node:18-alpine AS runner
 WORKDIR /app
 COPY --from=sourcer /app/ .
+EXPOSE 3000
 CMD [ "node", "apps/api/dist/main.js" ]

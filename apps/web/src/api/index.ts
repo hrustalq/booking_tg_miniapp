@@ -2,14 +2,9 @@ import axios from 'axios';
 import WebApp from '@twa-dev/sdk';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-const GIZMO_API_BASE_URL = import.meta.env.VITE_GIZMO_API_BASE_URL || '';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-});
-
-export const gizmoApiClient = axios.create({
-  baseURL: GIZMO_API_BASE_URL,
 });
 
 // Request interceptor
